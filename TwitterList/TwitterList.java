@@ -7,8 +7,8 @@ public class TwitterList implements Serializable {
 	private String ownerIconUrl;
 	private String description;
 	private boolean isProtected;
-	private int memberCount;
-	private int subscriberCount;
+	private Integer memberCount;
+	private Integer subscriberCount;
 	
 	public Long getId() {
 		return this.id;
@@ -52,16 +52,16 @@ public class TwitterList implements Serializable {
 	public void setProtected(boolean isProtected) {
 		this.isProtected = isProtected;
 	}
-	public int getMemberCount() {
+	public Integer getMemberCount() {
 		return this.memberCount;
 	}
-	public void setMemberCount(int memberCount) {
+	public void setMemberCount(Integer memberCount) {
 		this.memberCount = memberCount;
 	}
-	public int getSubscriberCount() {
+	public Integer getSubscriberCount() {
 		return this.subscriberCount;
 	}
-	public void setSubscriberCount(int subscriberCount) {
+	public void setSubscriberCount(Integer subscriberCount) {
 		this.subscriberCount = subscriberCount;
 	}
 	

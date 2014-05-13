@@ -7,7 +7,7 @@ public class TwitterListFragment extends ListFragment {
 	
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-		
+		//TODO: inflate xml
 	}
 	
 	@Override
@@ -22,7 +22,7 @@ public class TwitterListFragment extends ListFragment {
 		getLoaderManager().initLoader(type, null, new LoaderObserver<List<TwitterList>>(prog, new Action1<List<TwitterList>>(){
 			@Override
 			public void call(List<TwitterList>> data) {
-				// TODO:set footer
+				//TODO: set footer
 				
 				// on First
 				setListAdapter(new TwitterListAdapter(data, getActivity().getApplicationContext()));
@@ -48,6 +48,7 @@ public class TwitterListFragment extends ListFragment {
 				Toast.makeText(getActivity().getApplicationContext()
 					, "すべてのデータの読み込みが完了しました。", Toast.LENGTH_SHORT).show();
 				
+				getListView().removeFooterView(_footer);
 			}
 			
 			@Override
@@ -66,7 +67,7 @@ public class TwitterListFragment extends ListFragment {
 	@Override
 	public void onListItemClick(ListView l, View v, int position, long id) {
 		if(v.equals(_footer)){
-			// TODO: footer event
+			//TODO: footer event
 			return;
 		}
 		

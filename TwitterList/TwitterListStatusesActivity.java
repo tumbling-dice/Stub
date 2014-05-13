@@ -7,5 +7,10 @@ public class TwitterListStatusesActivity extends ActionBarActivity {
 		super(savedInstanceState);
 		setContentView(R.layout.activity_twitter_list_statuses);
 		
+		final TwitterList twitterList = (TwitterList) getIntent().getSerializableExtra(TWITTER_LIST);
+		
+		
+		//TODO: TimelineFragment‚Ìì¬
+		//		twitterList‚Ìid‚ğ“n‚¹‚Î‚æ‚¢H
 	}
 }

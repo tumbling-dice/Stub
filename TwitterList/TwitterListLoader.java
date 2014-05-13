@@ -42,6 +42,8 @@ public class TwitterListLoader extends ReactiveAsyncLoader<List<TwitterList>> {
 				case TYPE_OWN:
 					r.setResult(getOwnedList());
 					break;
+				default:
+					r.setError(new IllegalStateException(String.format("typeÇ™ïsê≥Ç≈Ç∑ÅB\d"), _type));
 			}
 		} catch(TwitterException e) {
 			r.setError(e);
