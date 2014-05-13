@@ -11,8 +11,8 @@ public class TwitterListActivity extends ActionBarActivity {
 		
 		final String screenName = getIntent().getString(SCREEN_NAME);
 		
-		//TODO: 1.FragmentPagerAdapter�̍쐬
-		//		2.ViewPager�̍쐬
-		//		3.ActionBar����݂̂��ꂱ��
+		//TODO: 1.FragmentPagerAdapterの作成
+		//		2.ViewPagerの作成
+		//		3.ActionBarがらみのあれこれ
 	}
 }

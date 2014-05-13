@@ -27,7 +27,7 @@ public class TwitterListLoader extends ReactiveAsyncLoader<List<TwitterList>> {
 		ReactiveAsyncResult<List<TwitterList>> r = new ReactiveAsyncResult<List<TwitterList>>();
 		
 		if(isComplete) {
-			r.setError(new IllegalStateException("Ç±ÇÍà»è„ÉfÅ[É^ÇÕÇ†ÇËÇ‹ÇπÇÒÅB"));
+			r.setError(new IllegalStateException("„Åì„Çå‰ª•‰∏ä„Éá„Éº„Çø„ÅØ„ÅÇ„Çä„Åæ„Åõ„Çì„ÄÇ"));
 			return r;
 		}
 		
@@ -43,7 +43,7 @@ public class TwitterListLoader extends ReactiveAsyncLoader<List<TwitterList>> {
 					r.setResult(getOwnedList());
 					break;
 				default:
-					r.setError(new IllegalStateException(String.format("typeÇ™ïsê≥Ç≈Ç∑ÅB\d"), _type));
+					r.setError(new IllegalStateException(String.format("type„Åå‰∏çÊ≠£„Åß„Åô„ÄÇ\d"), _type));
 			}
 		} catch(TwitterException e) {
 			r.setError(e);

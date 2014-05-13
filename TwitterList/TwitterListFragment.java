@@ -17,7 +17,7 @@ public class TwitterListFragment extends ListFragment {
 		final int type = args.getInt(TYPE, -1);
 		final String screenName = args.getString(SCREEN_NAME);
 		ProgressDialog prog = new ProgressDialog(getActivity());
-		prog.setMessage("“Ç‚İ‚İ’†...");
+		prog.setMessage("èª­ã¿è¾¼ã¿ä¸­...");
 		
 		getLoaderManager().initLoader(type, null, new LoaderObserver<List<TwitterList>>(prog, new Action1<List<TwitterList>>(){
 			@Override
@@ -46,7 +46,7 @@ public class TwitterListFragment extends ListFragment {
 			@Override
 			public void onComplete() {
 				Toast.makeText(getActivity().getApplicationContext()
-					, "‚·‚×‚Ä‚Ìƒf[ƒ^‚Ì“Ç‚İ‚İ‚ªŠ®—¹‚µ‚Ü‚µ‚½B", Toast.LENGTH_SHORT).show();
+					, "ã™ã¹ã¦ã®ãƒ‡ãƒ¼ã‚¿ã®èª­ã¿è¾¼ã¿ãŒå®Œäº†ã—ã¾ã—ãŸã€‚", Toast.LENGTH_SHORT).show();
 				
 				getListView().removeFooterView(_footer);
 			}
