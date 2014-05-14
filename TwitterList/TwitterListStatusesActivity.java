@@ -9,7 +9,6 @@ public class TwitterListStatusesActivity extends ActionBarActivity {
 		
 		final TwitterList twitterList = (TwitterList) getIntent().getSerializableExtra(TWITTER_LIST);
 		
-		
 		//TODO: TimelineFragmentの作成
 		//		twitterListのidを渡せばよい？
 	}

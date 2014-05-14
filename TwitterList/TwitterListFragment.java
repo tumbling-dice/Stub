@@ -96,4 +96,20 @@ public class TwitterListFragment extends ListFragment {
 				return false;
 		}
 	}
+	
+	public String getTitle() {
+		Bundle args = getArguments();
+		if(args == null) return null;
+		
+		switch(args.getInt(TYPE, -1)) {
+			case TwitterListLoader.TYPE_SUBSCRIBE:
+				return "Subscribe";
+			case TwitterListLoader.TYPE_BELONG:
+				return "Belong";
+			case TwitterListLoader.TYPE_OWN:
+				return "Own";
+			default:
+				return null;
+		}
+	}
 }
