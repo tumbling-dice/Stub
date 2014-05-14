@@ -76,10 +76,11 @@ public class DynamicFragmentPagerAdapter extends PagerAdapter {
 		if(_ft == null) _ft = _fm.beginTransaction();
 		
 		FragmentInfo fi = _fragments.get(position);
-		String tag = container.getId() + fi.getName();
+		StringBuilder tag = new StringBuilder(container.getId());
+		tag.append(":").append(fi.getName());
 		
 		// destroyItemでdetachされていたFragmentの場合はattachする
-		Fragment f = _fm.findFragmentByTag(tag);
+		Fragment f = _fm.findFragmentByTag(tag.toString());
 		if(f != null) {
 			_fm.attach(f)
 			return f;
@@ -92,7 +93,7 @@ public class DynamicFragmentPagerAdapter extends PagerAdapter {
 			f.setUserVisibleHint(false);
 		}
 		
-		_ft.add(container.getId(), f, tag);
+		_ft.add(container.getId(), f, tag.toString());
 		
 		return f;
 	}
@@ -122,7 +123,9 @@ public class DynamicFragmentPagerAdapter extends PagerAdapter {
 
 	@Override
 	public void setPrimaryItem(ViewGroup container, int position, Object object) {
-		Fragment fragment = (Fragment)object;
+		if(object == null) return;
+		
+		Fragment fragment = (Fragment) object;
 		
 		if(!fragment.equals(_primaryItem)) {
 			
@@ -173,7 +176,7 @@ public class DynamicFragmentPagerAdapter extends PagerAdapter {
 		bundle.setClassLoader(loader);
 		
 		for(String key : bundle.keySet()) {
-			if(!key.startsWith("f")) continue; 
+			if(!key.startsWith("f")) continue;
 			
 			int index = Integer.parseInt(key.substring(1));
 			
@@ -187,11 +190,12 @@ public class DynamicFragmentPagerAdapter extends PagerAdapter {
 	
 	@Override
 	public int getItemPosition(Object object) {
+		//object(= Fragment)が削除対象であればPOSITIONE_NONEを返す
 		Fragment f = (Fragment) object;
 		
 		for(FragmentInfo fi : _fragments) {
-			if(fi.isNeedRemove() && fi.getFragment().equals(f)) {
-				return POSITION_NONE;
+			if(fi.getFragment().equals(f)){
+				return fi.isNeedRemove() ? POSITION_NONE : POSITION_UNCHANGED;
 			}
 		}
 		
