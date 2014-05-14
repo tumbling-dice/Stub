@@ -14,20 +14,18 @@ public class TwitterListFragment extends ListFragment {
 	public void onActivityCreated(Bundle savedInstanceState) {
 		
 		Bundle args = getArguments();
-		final int type = args.getInt(TYPE, -1);
 		final String screenName = args.getString(SCREEN_NAME);
 		ProgressDialog prog = new ProgressDialog(getActivity());
 		prog.setMessage("読み込み中...");
 		
-		getLoaderManager().initLoader(type, null, new LoaderObserver<List<TwitterList>>(prog, new Action1<List<TwitterList>>(){
+		getLoaderManager().initLoader(args.getInt(TYPE, -1), null, new LoaderObserver<List<TwitterList>>(prog, new Action1<List<TwitterList>>(){
 			@Override
 			public void call(List<TwitterList>> data) {
 				//TODO: set footer
 				
-				// on First
 				setListAdapter(new TwitterListAdapter(data, getActivity().getApplicationContext()));
 			}
-		}) {
+		}){
 			@Override
 			public ReactiveAsyncLoader<List<TwitterList>> onCreate(int id, Bundle args) {
 				return new TwitterListLoader(screenName, id, getActivity().getApplicationContext());
@@ -36,7 +34,7 @@ public class TwitterListFragment extends ListFragment {
 			@Override
 			public void onNext(List<TwitterList> data) {
 				TwitterListAdapter adapter = (TwitterListAdapter) getListAdapter();
-				for(TwitterList d :data) {
+				for(TwitterList d : data) {
 					adapter.add(d);
 				}
 				
@@ -76,5 +74,26 @@ public class TwitterListFragment extends ListFragment {
 		i.putExtra(TwitterListStatusesActivity.TWITTER_LIST, item);
 		i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 		getActivity().startActivity(i);
+	}
+	
+	/*
+	 * オプションメニュー
+	 */
+	
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		getMenuInflater().inflate(R.menu.menu_twitter_list, menu);
+		return true;
+	}
+	
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		switch(item.getItemId()) {
+			case R.id.menuAddList:
+				//TODO: リスト作成用画面（？）へ遷移
+				return true;
+			default:
+				return false;
+		}
 	}
 }

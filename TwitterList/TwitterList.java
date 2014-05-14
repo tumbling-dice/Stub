@@ -64,6 +64,9 @@ public class TwitterList implements Serializable {
 	public void setSubscriberCount(Integer subscriberCount) {
 		this.subscriberCount = subscriberCount;
 	}
+	public boolean isMyList() {
+		return this.isMyList;
+	}
 	
 	@Override
 	public boolean equals(Object obj) {

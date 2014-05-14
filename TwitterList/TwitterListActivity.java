@@ -14,5 +14,9 @@ public class TwitterListActivity extends ActionBarActivity {
 		//TODO: 1.FragmentPagerAdapterの作成
 		//		2.ViewPagerの作成
 		//		3.ActionBarがらみのあれこれ
+		
+		
 	}
+	
+	
 }
