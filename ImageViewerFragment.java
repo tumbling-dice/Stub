@@ -24,7 +24,7 @@ public class ImageViewerFragment extends Fragment implements SurfaceHolder.Callb
 		_scaleGestureDetector = new ScaleGestureDetector(v.getContext(), _scaleListener);
 		
 		SurfaceView sv = (SurfaceView) getView().findViewById(R.id.sfvImage);
-		// callback‚ğƒZƒbƒg‚·‚é
+		// callbackã‚’ã‚»ãƒƒãƒˆã™ã‚‹
 		sv.getHolder().addCallback(this);
 		sv.setOnTouchListener(new View.OnTouchListenser() {
 			@Override
@@ -43,7 +43,7 @@ public class ImageViewerFragment extends Fragment implements SurfaceHolder.Callb
 		
 		Bundle args = getArguments();
 		
-		if(args == null || !args.containsKey(KEY_URL)) throw new IllegalArgumentException("URL‚ª‚ ‚è‚Ü‚¹‚ñ");
+		if(args == null || !args.containsKey(KEY_URL)) throw new IllegalArgumentException("URLãŒã‚ã‚Šã¾ã›ã‚“");
 		
 		String url = args.getString(KEY_URL);
 		
@@ -53,7 +53,7 @@ public class ImageViewerFragment extends Fragment implements SurfaceHolder.Callb
 				
 				if(bitmap == null) {
 					Toast.makeText(getActivity().getApplicationContext()
-						, "‰æ‘œ‚Ìæ“¾‚É¸”s‚µ‚Ü‚µ‚½B", Toast.LENGTH_SHORT).show();
+						, "ç”»åƒã®å–å¾—ã«å¤±æ•—ã—ã¾ã—ãŸã€‚", Toast.LENGTH_SHORT).show();
 					return;
 				}
 				
@@ -67,7 +67,7 @@ public class ImageViewerFragment extends Fragment implements SurfaceHolder.Callb
 		}, new Action1<Exception>(){
 			@Override
 			public void call(Exception e) {
-				Toast.makeText(getActivity().getApplicationContext(), "‰æ‘œ‚Ìæ“¾‚É¸”s‚µ‚Ü‚µ‚½B", Toast.LENGTH_SHORT).show();
+				Toast.makeText(getActivity().getApplicationContext(), "ç”»åƒã®å–å¾—ã«å¤±æ•—ã—ã¾ã—ãŸã€‚", Toast.LENGTH_SHORT).show();
 			}
 		})
 		.execute(url);
@@ -91,7 +91,7 @@ public class ImageViewerFragment extends Fragment implements SurfaceHolder.Callb
 		
 		_matrix.reset();
 		
-		// ‰æ‘œ‚ğ’†‰›‚ÉŠñ‚¹‚é
+		// ç”»åƒã‚’ä¸­å¤®ã«å¯„ã›ã‚‹
 		_matrix.postTranslate(_scale, _scale);
 		_matrix.postTranslate(-_x / 2 * _scale, -_y / 2 * _scale);
 		_matrix.postTranslate(_x, _y);
