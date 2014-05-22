@@ -2,8 +2,16 @@
   <action android:name="android.intent.action.VIEW" />
   <category android:name="android.intent.category.DEFAULT" />
   <category android:name="android.intent.category.BROWSABLE" />
-  <data android:scheme="http" android:mimeType="image/*" />
-  <data android:scheme="https" android:mimeType="image/*" />
+  <data android:scheme="http" android:mimeType="image/jpeg" />
+  <data android:scheme="http" android:mimeType="image/jpg" />
+  <data android:scheme="http" android:mimeType="image/png" />
+  <data android:scheme="http" android:mimeType="image/bmp" />
+  <data android:scheme="http" android:mimeType="image/bitmap" />
+  <data android:scheme="https" android:mimeType="image/jpeg" />
+  <data android:scheme="https" android:mimeType="image/jpg" />
+  <data android:scheme="https" android:mimeType="image/png" />
+  <data android:scheme="https" android:mimeType="image/bmp" />
+  <data android:scheme="https" android:mimeType="image/bitmap" />
 </intent-filter>
 <intent-filter>
   <action android:name="android.intent.action.VIEW" />
