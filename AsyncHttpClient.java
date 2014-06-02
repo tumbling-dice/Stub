@@ -18,7 +18,6 @@ public class AsyncHttpClient<TReturn> extends AsyncTask<Uri, Void, TReturn> {
 	private OnFailedListener _onFailed;
 	private OnPostListener _onPost;
 	
-	
 	static class HttpSettings {
 	
 		int timeout = 60000;
@@ -117,7 +116,7 @@ public class AsyncHttpClient<TReturn> extends AsyncTask<Uri, Void, TReturn> {
 		
 		SchemeRegistry schreg = new SchemeRegistry();
 		schreg.register(new Scheme("http", PlainSocketFactory.getSocketFactory(), 80));
-		schreg.register(new Scheme("https", SSLSocketFactory.getSocketFactory(timeout, _settings.sessionCache), 443));
+		schreg.register(new Scheme("https", SSLCertificateSocketFactory.getHttpSocketFactory(timeout, _settings.sessionCache), 443));
 		
 		ThreadSafeClientConnManager connManager = new ThreadSafeClientConnManager(params, schreg);
 		
