@@ -8,7 +8,8 @@ class ReactiveAsyncTask[Source, Return](val exec : Source => Option[Return]) ext
 	private var onError : Exception => Unit = _
 	private var onCancel : Unit => Unit = _
 	
-	def prepare(event : Unit => Unit) = {
+	
+	def prepare_(event : Unit => Unit) = {
 		onPrepare = event
 		this
 	}
@@ -57,10 +58,8 @@ class ReactiveAsyncTask[Source, Return](val exec : Source => Option[Return]) ext
 		}
 		
 		r match {
-			case Some(v) =>
-				if(onSuccess != null) onSuccess(v)
-			case None =>
-				if(onFailure != null) onFailure()
+			case Some(v) if onSuccess != null => onSuccess(v)
+			case None if onFailure != null => onFailure()
 		}
 	}
 	
@@ -72,7 +71,7 @@ class ReactiveAsyncTask[Source, Return](val exec : Source => Option[Return]) ext
 		if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.HONEYCOMB_MR1) {
 			super.execute(param)
 		} else {
-			super.super.executeOnExecutor(THREAD_POOL_EXECUTOR, param)
+			super.executeOnExecutor(THREAD_POOL_EXECUTOR, param)
 		}
 	}
 }
