@@ -22,60 +22,150 @@ import android.content.res.Resources
 import android.app.Activity
 import android.widget.WrapperListAdapter
 
+/**
+ * Androidで使用するimplicit classes
+ */
 object AndroidExtentions {
 
+	/**
+	 * Context's Method Extentions
+	 */
 	implicit class ContextExtention(val context: Context) {
-		def isMainThread() = {
+		/**
+		 * 実行中のスレッドがメインスレッド（UIスレッド）かどうかを調べます
+		 *
+		 * @return メインスレッドならばtrue
+		 */
+		def isMainThread() {
 			Thread.currentThread().equals(context.getMainLooper().getThread())
 		}
-
+		
+		/**
+		 * [[android.widget.Toast]]を表示します
+		 *
+		 * @param s 表示する文字列
+		 * @see [[android.widget.Toast]]
+		 */
+		def showToastShort(s: String) = {
+			Toast.makeText(context, s, Toast.LENGTH_SHORT).show()
+		}
+		
+		/**
+		 * [[android.widget.Toast]]を表示します
+		 *
+		 * @param s 表示する文字列
+		 * @see [[android.widget.Toast]]
+		 */
+		def showToastLong(s: String) = {
+			Toast.makeText(context, s, Toast.LENGTH_LONG).show()
+		}
 	}
 
+	/**
+	 * View's Method Extentions
+	 */
 	implicit class ViewExtention(val view: View) {
 
+		/**
+		 * View#findViewByIdの結果をOptionで返します
+		 *
+		 * @param resourceId Viewのid
+		 * @tparam T Viewを継承した型
+		 * @return findViewByIdの結果がnullでなく、返却値の型がTだった場合のみ値を返す
+		 */
 		def findViewOptional[T <: View : ClassTag](resourceId: Int) = view.findViewById(resourceId) match {
 			case found if implicitly[ClassTag[T]].runtimeClass.isInstance(found) => Some(found.asInstanceOf[T])
 			case _ => None
 		}
 
+		/**
+		 * 内部リソースを取得します
+		 * 
+		 * @param name リソース名
+		 * @param defType 種類名 ex.) layout, id
+		 * @tparam T Viewを継承した型
+		 * @return 指定されたリソース
+		 */
 		def findInternalView[T <: View : ClassTag](name: String, defType: String) = {
 			view.findViewOptional[T](Resources.getSystem().getIdentifier(name, defType, "android"))
+		}
+		
+		/**
+		 * Viewに含まれている子Viewを列挙します
+		 * 
+		 * @param callback 列挙されたViewに対する処理
+		 */
+		def findViews(callback: PartialFunction[(Int, View), Unit]) = view match {
+			case root: ViewGroup => for(v <- root.iterateView()) callback((v.getId(), v))
+		}
+		
+		/**
+		 * Viewに含まれている子Viewを列挙します
+		 * 
+		 * @param rootViewId RootとするViewのid
+		 * @param callback 列挙されたViewに対する処理
+		 */
+		def findViews(rootViewId: Int, callback: PartialFunction[(Int, View), Unit]) = 
+		view.findViewOptional[ViewGroup](rootViewId) match {
+			case Some(root) => for(v <- root.iterateView()) callback((v.getId(), v))
 		}
 
 	}
 
+	/**
+	 * ViewGroup's Method Extentions
+	 */
 	implicit class ViewGroupExtention(val viewGroup: ViewGroup) {
+		
+		/**
+		 * ViewGroupが直下に所持しているViewを列挙します
+		 * 
+		 * @return ViewGroupが所持しているViewのSeq
+		 */
 		def flattenView() = for(i <- 0 until viewGroup.getChildCount()) yield viewGroup.getChildAt(i)
 
+		/**
+		 * ViewGroupが所持しているViewをすべて展開し、列挙します
+		 * 
+		 * @return ViewGroupが所持しているすべてのViewのSeq
+		 */
 		def iterateView(): List[View] = {
-
 			val buf: scala.collection.mutable.ListBuffer[View]
 					= scala.collection.mutable.ListBuffer(viewGroup)
 
 			for (v <- viewGroup.flattenView()) {
 				v match {
-					case vv: ViewGroup => buf ++= vv.iterateView()
+					case vg: ViewGroup => buf ++= vg.iterateView()
 					case _ => buf += v
 				}
 			}
 
 			buf.toList
 		}
-
 	}
-
+	
+	/**
+	 * ListView's Method Extentions
+	 */
 	implicit class ListViewExtention(val listView: ListView) {
-		def getAdapterOptional[T <: ListAdapter]()(implicit c: ClassTag[T]) = listView.getAdapter() match {
+		
+		/**
+		 * ListViewが所持しているListAdapterを安全に取得します
+		 *
+		 * @tparam T ListAdapterを継承している型
+		 * @return ListViewが所持しているListAdapter
+		 */
+		def getAdapterOptional[T <: ListAdapter : ClassTag]() = listView.getAdapter() match {
 			case null => None
 			case adapter: WrapperListAdapter =>
 				adapter.getWrappedAdapter() match {
-					case a if c.runtimeClass.isInstance(a) =>
+					case a if implicitly[ClassTag[T]].runtimeClass.isInstance(a) =>
 						Some(a.asInstanceOf[T])
 					case _ => None
 				}
 			case adapter: ListAdapter =>
 				adapter match {
-					case a if c.runtimeClass.isInstance(a) =>
+					case a if implicitly[ClassTag[T]].runtimeClass.isInstance(a) =>
 						Some(a.asInstanceOf[T])
 					case _ => None
 				}
@@ -83,19 +173,96 @@ object AndroidExtentions {
 
 	}
 
-	implicit class AdapterExtention[T](val adapter: Adapter) {
-		def toSeq() = {
+	/**
+	 * Adapter's Method Extentions
+	 */
+	implicit class AdapterExtention(val adapter: Adapter) {
+		
+		/**
+		 * 所持しているItemを列挙します
+		 * 
+		 * @return Adapterが所持しているすべてのItem
+		 */
+		def toSeqItems[T]() {
 			for (i <- 0 until adapter.getCount()) yield adapter.getItem(i).asInstanceOf[T]
 		}
 
 	}
+	
+	/**
+	 * Activity's Method Extentions
+	 */
+	implicit class ActivityExtention(val activity: Activity) {
+		
+		/**
+		 * Activity#findViewByIdの結果をOptionで返します
+		 *
+		 * @param resourceId Viewのid
+		 * @tparam T Viewを継承した型
+		 * @return findViewByIdの結果がnullでなく、返却値の型がTだった場合のみ値を返す
+		 */
+		def findViewOptional[T <: View : ClassTag](resourceId: Int) = activity.findViewById(resourceId) match {
+			case found if implicitly[ClassTag[T]].runtimeClass.isInstance(found) => Some(found.asInstanceOf[T])
+			case _ => None
+		}
+		
+		/**
+		 * 内部リソースを取得します
+		 * 
+		 * @param name リソース名
+		 * @param defType 種類名 ex.) layout, id
+		 * @tparam T Viewを継承した型
+		 * @return 指定されたリソース
+		 */
+		def findInternalView[T <: View : ClassTag](name: String, defType: String) = {
+			activity.findViewOptional[T](Resources.getSystem().getIdentifier(name, defType, "android"))
+		}
+		
+		/**
+		 * Activityに含まれているViewを列挙します
+		 * 
+		 * @param callback 列挙されたViewに対する処理
+		 */
+		def findViews(callback: PartialFunction[(Int, View), Unit]) = {
+			val root = activity.getWindow().getDecorView().asInstanceOf[ViewGroup]
+			for(v <- root.iterateView()) callback((v.getId(), v))
+		}
+		
+		/**
+		 * Activityに含まれているViewを列挙します
+		 * 
+		 * @param rootViewId RootとするViewのid
+		 * @param callback 列挙されたViewに対する処理
+		 */
+		def findViews(rootViewId: Int, callback: PartialFunction[(Int, View), Unit]) = 
+		activity.findViewOptional[ViewGroup](rootViewId) match {
+			case Some(root) => for(v <- root.iterateView()) callback((v.getId(), v))
+		}
+		
+	}
 
+	/**
+	 * Fragment's Method Extentions
+	 */
 	implicit class FragmentExtention(val fragment: Fragment) {
+		
+		/**
+		 * Application Contextを取得します
+		 * 
+		 * @return Application Context
+		 * @throw IllegalStateException Activityが取得できなかった場合に発生
+		 */
 		def getApplicationContext() = fragment.getActivity() match {
 			case null => throw new IllegalStateException("Activityを取得できませんでした。")
 			case activity => activity.getApplicationContext()
 		}
-
+		
+		/**
+		 * Fragmentがタッチされたときのイベントを設定します
+		 * 
+		 * @param onKeyDownListener イベントリスナー
+		 * @throw IllegalStateException Fragment#onCreateViewが完了していない場合に発生
+		 */
 		def setOnKeyDownListener(onKeyDownListener: (Int, KeyEvent) => Boolean): Unit = {
 			fragment.getView() match {
 				case null => throw new IllegalStateException("Fragment#onCreateViewが完了していないか、" +
@@ -103,7 +270,13 @@ object AndroidExtentions {
 				case v => fragment.setOnKeyDownListener(v, onKeyDownListener)
 			}
 		}
-
+		
+		/**
+		 * Fragmentがタッチされたときのイベントを設定します
+		 * 
+		 * @param view Fragmentが内部で所持しているView
+		 * @param onKeyDownListener イベントリスナー
+		 */
 		def setOnKeyDownListener(view: View, onKeyDownListener: (Int, KeyEvent) => Boolean) = {
 			view.setOnKeyListener(new OnKeyListener() {
 				override def onKey(v: View, keyCode: Int, event: KeyEvent) = {
@@ -118,9 +291,16 @@ object AndroidExtentions {
 		}
 
 	}
-
+	
+	/**
+	 * ActionBarActivity's Method Extentions
+	 */
 	implicit class ActionbarActivityExtention(val activity: Activity) {
-		def moveToDownActionBar() {
+		
+		/**
+		 * ActionBarを画面下に移動します
+		 */
+		def moveToDownActionBar() = {
 			val root = activity.getWindow().getDecorView().asInstanceOf[ViewGroup]
 			val firstChild = root.getChildAt((if (Build.VERSION.SDK_INT >= 11) 0 else 1)).asInstanceOf[ViewGroup]
 			val views = root.iterateView()
@@ -134,24 +314,43 @@ object AndroidExtentions {
 			views.filter(actionBarContainerFilter).foreach(v => firstChild.removeView(v))
 			views.filter(actionBarContainerFilter).foreach(v => firstChild.addView(v))
 		}
-
-		def getActionBarIconView() = {
-			Build.VERSION.SDK_INT match {
-				case ver if ver >= 11 =>
-					activity.findViewById(android.R.id.home).asInstanceOf[ImageView]
-				case _ =>
-					activity.findViewById(R.id.home)
-			}
+		
+		/**
+		 * ActionBarのIconを表示しているImageViewを取得します
+		 * 
+		 * @return ActionBarのIcon
+		 */
+		def getActionBarIconView() = Build.VERSION.SDK_INT match {
+			case ver if ver >= 11 =>
+				activity.findViewById(android.R.id.home).asInstanceOf[ImageView]
+			case _ =>
+				activity.findViewById(R.id.home).asInstanceOf[ImageView]
 		}
+		
 	}
 
+	/**
+	 * SQLiteOpenHelper's Method Extentions
+	 */
 	implicit class SQLiteOpenHelperExtention(val helper: SQLiteOpenHelper) {
-		def transaction(context: Context, action: SQLiteDatabase => Unit) : Unit = {
-			transaction(context, action, null)
-		}
+		
+		/**
+		 * トランザクション処理を開始します
+		 * 
+		 * @param context
+		 * @action DB操作内容
+		 */
+		def transaction(context: Context, action: SQLiteDatabase => Unit) : Unit = transaction(context, action, null)
 
+		/**
+		 * トランザクション処理を開始します
+		 * 
+		 * @param context
+		 * @action DB操作内容
+		 * @onError DB操作中に例外が発生した場合の処理
+		 */
 		def transaction(context: Context,
-			action: SQLiteDatabase => Unit, onError: (Exception, SQLiteDatabase) => Unit): Unit = {
+			action: SQLiteDatabase => Unit, onError: (Exception, SQLiteDatabase) => Unit) : Unit = {
 
 			val db = helper.getWritableDatabase()
 
@@ -174,7 +373,16 @@ object AndroidExtentions {
 				}
 			}
 		}
-
+	
+		/**
+		 * DBからデータを取得します
+		 * 
+		 * @param context
+		 * @param query SQL
+		 * @param mapper
+		 * @tparam T 取得するデータの型
+		 * @return 取得したデータのList
+		 */
 		def select[T](context: Context, query: String, mapper: Cursor => T) = {
 			val db = helper.getReadableDatabase()
 
@@ -202,8 +410,12 @@ object AndroidExtentions {
 			}
 		}
 	}
-
+	
+	/**
+	 * Cursor's Method Extentions
+	 */
 	implicit class CursorExtention(val cursor: Cursor) {
+		
 		def getDoubleByName(columnName: String) = cursor.getDouble(cursor.getColumnIndexOrThrow(columnName))
 		def getFloatByName(columnName: String) = cursor.getFloat(cursor.getColumnIndexOrThrow(columnName))
 		def getIntByName(columnName: String) = cursor.getInt(cursor.getColumnIndexOrThrow(columnName))
@@ -212,6 +424,13 @@ object AndroidExtentions {
 		def getStringByName(columnName: String) = cursor.getString(cursor.getColumnIndexOrThrow(columnName))
 		def getTypeByName(columnName: String) = cursor.getType(cursor.getColumnIndexOrThrow(columnName))
 
+		/**
+		 * Cursorからデータを取得
+		 * 
+		 * @param mapper
+		 * @tparam T 取得するデータの型
+		 * @return 取得したデータのList
+		 */
 		def map[T](mapper: Cursor => T): List[T] = {
 
 			val buf = scala.collection.mutable.ListBuffer.empty[T]
@@ -225,7 +444,8 @@ object AndroidExtentions {
 			buf.toList
 		}
 	}
-
+	
+	/*
 	implicit class SerializableExtention(val serializable: Serializable) {
 		def save(path: String, context: Context, onError: PartialFunction[Exception, Unit]) = {
 			var fos: FileOutputStream = null
@@ -263,6 +483,6 @@ object AndroidExtentions {
 			}
 
 		}
-
 	}
+	*/
 }

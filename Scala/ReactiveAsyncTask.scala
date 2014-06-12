@@ -1,35 +1,49 @@
 class ReactiveAsyncTask[Source, Return](val exec : Source => Option[Return]) extends AsyncTask[Source, Unit, Option[Return]] {
 	
-	private var exception : Exception = _
+	private var exception: Exception = _
+	private var _prog: ProgressDialog = _
 	
-	private var onPrepare : Unit => Unit = _
-	private var onSuccess : TSource => Unit = _
-	private var onFailure : Unit => Unit = _
-	private var onError : Exception => Unit = _
-	private var onCancel : Unit => Unit = _
+	private var onPrepare: Unit => Unit = _
+	private var onSuccess: TSource => Unit = _
+	private var onFailure: Unit => Unit = _
+	private var onError: Exception => Unit = _
+	private var onCancel: Unit => Unit = _
 	
 	
-	def prepare_(event : Unit => Unit) = {
+	def prepare(event: Unit => Unit) = {
 		onPrepare = event
 		this
 	}
 	
-	def success(event : TSource => Unit) = {
+	def prepare(progressDialog: ProgressDialog) = {
+		_prog = progressDialog
+		_prog.show()
+		this
+	}
+	
+	def prepare(progressDialog: ProgressDialog, event: Unit => Unit) = {
+		_prog = progressDialog
+		_prog.show()
+		onPrepare = event
+		this
+	}
+	
+	def success(event: TSource => Unit) = {
 		onSuccess = event
 		this
 	}
 	
-	def failure(event : Unit => Unit) = {
+	def failure(event: Unit => Unit) = {
 		onFailure = event
 		this
 	}
 	
-	def error(event : Exception => Unit) = {
+	def error(event: Exception => Unit) = {
 		onError = event
 		this
 	}
 	
-	def cancel(event : Unit => Unit) = {
+	def cancel(event: Unit => Unit) = {
 		onCancel = event
 		this
 	}
@@ -49,6 +63,12 @@ class ReactiveAsyncTask[Source, Return](val exec : Source => Option[Return]) ext
 	}
 	
 	override protected def onPostExecute(r : Option[Return]) = {
+		
+		if(_prog != null) {
+			_prog.dismiss()
+			_prog = null
+		}
+		
 		if(exception != null) {
 			if(onError != null) {
 				onError(exception)
@@ -64,6 +84,10 @@ class ReactiveAsyncTask[Source, Return](val exec : Source => Option[Return]) ext
 	}
 	
 	override protected onCanceled() = {
+		if(_prog != null) {
+			_prog.dismiss()
+			_prog = null
+		}
 		if(onCancel != null) onCancel()
 	}
 	
@@ -71,7 +95,7 @@ class ReactiveAsyncTask[Source, Return](val exec : Source => Option[Return]) ext
 		if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.HONEYCOMB_MR1) {
 			super.execute(param)
 		} else {
-			super.executeOnExecutor(THREAD_POOL_EXECUTOR, param)
+			super.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, param)
 		}
 	}
 }
