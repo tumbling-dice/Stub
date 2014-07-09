@@ -1,6 +1,0 @@
-<menu xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:appcomp="http://schemas.android.com/apk/res-auto">
-    <item android:title="Add List"
-        android:id="@+id/menuAddList"
-        appcomp:showAsAction="ifRoom" />
-</menu>

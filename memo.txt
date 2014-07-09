@@ -1,0 +1,2 @@
+android - Getting the Listview default clicked color, depending on the Device - Stack Overflow
+http://stackoverflow.com/questions/3817662/getting-the-listview-default-clicked-color-depending-on-the-device
