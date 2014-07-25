@@ -1,6 +1,7 @@
 public class ImageViewerActivity extends FragmentActivity {
 	
-	public static final String KEY_URL = "url";
+	// TODO:画像を保存するかどうかの判定に使用
+	private boolean _isNetwork;
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -10,25 +11,43 @@ public class ImageViewerActivity extends FragmentActivity {
 		Intent intent = getIntent();
 		
 		if(intent == null) {
+			Toast.makeText(getApplicationContext(), "intentがありません。", Toast.LENGTH_SHORT).show();
 			finish();
 			return;
 		}
 		
-		// urlが直接渡されてきたパターン
-		if(intent.containsKey(KEY_URL)) {
-			String url = intent.getStringExtra(KEY_URL);
-			//TODO:fragmentにurlを渡す
+		ImageViewerFragment f = new ImageViewerFragment();
+		
+		if(intent.containsKey(ImageViewerFragment.KEY_URI)) {
+			// Uriが直接渡されてきたパターン
+			String uri = intent.getStringExtra(ImageViewerFragment.KEY_URI);
+			_isNetwork = intent.getBooleanExtra(ImageViewerFragment.KEY_IS_NETWORK, false);
+			f.setArguments(ImageViewerFragment.createArgument(uri, isNetwork));
 			
-			return;
-		}
-		
-		String type = intent.getType();
-		
-		// MIME typeがimage
-		if(type != null && type.startsWith("image/")) {
+		} else {
+			String type = intent.getType();
+			
+			if(type == null) {
+				Toast.makeText(getApplicationContext(), "typeがありません。", Toast.LENGTH_SHORT).show();
+				finish();
+				return;
+			}
+			
+			if(!type.startsWith("image/")) {
+				Toast.makeText(getApplicationContext(), "MIME-Typeがimageではありません。", Toast.LENGTH_SHORT).show();
+				finish();
+				return;
+			}
+			
 			Uri uri = intent.getData();
-			
-			return;
+			// Uriのschemeから内部ストレージかどうか判定
+			_isNetwork = uri.getScheme().startsWith("http");
+			f.setArguments(ImageViewerFragment.createArgument(uri.toString(), isNetwork));
 		}
+		
+		FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+		// TODO:Fragmentの生成
+		
+		ft.commit();
 	}
 }

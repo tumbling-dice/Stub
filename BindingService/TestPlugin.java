@@ -6,32 +6,27 @@ public final class TestPlugin extends Plugin {
 	}
 	
 	@Override
-	public String getLayoutFileAuthorities() {
+	public ArrayList<String> getClickMenues(int resourcePosition, TwitterData data) {
 		return null;
 	}
 	
 	@Override
-	public ArrayList<String> getClickMenu() {
-		return null;
-	}
-	
-	@Override
-	public boolean onClickItem(int position, TwitterData data) {
+	public boolean onMenuItemClick(int menuItemPosition, TwitterData data) {
 		return false;
 	}
 	
 	@Override
-	public List<TwitterData> onReload() {
+	public List<TwitterData> onReload(String screenName, long userId) {
 		return null;
 	}
 	
 	@Override
-	public List<TwitterData> onMore() {
+	public List<TwitterData> onMore(String screenName, long userId) {
 		return null;
 	}
 	
 	@Override
-	public boolean onPost() {
-		return false;
+	public void onPost(String screenName, long userId) {
+		
 	}
 }

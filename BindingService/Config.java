@@ -22,7 +22,4 @@ public final class Config {
 		return _resource.getBoolean(R.bool.more);
 	}
 	
-	public boolean isAdvancedLayout() {
-		return _resource.getBoolean(R.bool.advanced_layout);
-	}
 }

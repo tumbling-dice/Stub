@@ -1,6 +1,7 @@
 public class ImageViewerFragment extends Fragment implements SurfaceHolder.Callback {
 	
-	public static final String KEY_URL = "url";
+	public static final String KEY_URI = "uri";
+	public static final String KEY_IS_NETWORK = "isNetwork";
 	
 	private Bitmap _bitmap;
 	private SurfaceHolder _holder;
@@ -15,6 +16,14 @@ public class ImageViewerFragment extends Fragment implements SurfaceHolder.Callb
 			return true;
 		}
 	};
+	
+	public static Bundle createArgument(String uri, boolean isNetwork) {
+		Bundle args = new Bundle();
+		args.putString(KEY_URI, uri);
+		if(isNetwork) args.putBoolean(KEY_IS_NETWORK, true);
+		
+		return args;
+	}
 	
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -43,34 +52,45 @@ public class ImageViewerFragment extends Fragment implements SurfaceHolder.Callb
 		
 		Bundle args = getArguments();
 		
-		if(args == null || !args.containsKey(KEY_URL)) throw new IllegalArgumentException("URLがありません");
+		if(args == null || !args.containsKey(KEY_URI)) throw new IllegalArgumentException("URIがありません");
 		
-		String url = args.getString(KEY_URL);
+		String uri = args.getString(KEY_URI);
 		
-		new ImageLoader(60000, new Action1<Bitmap>(){
-			@Override
-			public void call(Bitmap bitmap){
-				
-				if(bitmap == null) {
-					Toast.makeText(getActivity().getApplicationContext()
-						, "画像の取得に失敗しました。", Toast.LENGTH_SHORT).show();
-					return;
+		if(args.getBoolean(KEY_IS_NETWORK, false)) {
+			// ネットワーク経由で画像を取得する
+			final ProgressDialog prog = ActivityUtil.createProgress("画像を読み込んでいます...", getActivity());
+			prog.setTitle("通信中");
+			prog.show();
+			new ImageLoader(60000, new Action1<Bitmap>(){
+				@Override
+				public void call(Bitmap bitmap){
+					prog.dismiss();
+					
+					if(bitmap == null) {
+						Toast.makeText(getActivity().getApplicationContext()
+							, "画像の取得に失敗しました。", Toast.LENGTH_SHORT).show();
+						
+						return;
+					}
+					
+					_bitmap = bitmap;
+					_x = bitmap.getWidth();
+					_y = bitmap.getHeight();
+					_matrix = new Matrix();
+					
+					draw();
 				}
-				
-				_bitmap = bitmap;
-				_x = bitmap.getWidth();
-				_y = bitmap.getHeight();
-				_matrix = new Matrix();
-				
-				draw();
-			}
-		}, new Action1<Exception>(){
-			@Override
-			public void call(Exception e) {
-				Toast.makeText(getActivity().getApplicationContext(), "画像の取得に失敗しました。", Toast.LENGTH_SHORT).show();
-			}
-		})
-		.execute(url);
+			}, new Action1<Exception>(){
+				@Override
+				public void call(Exception e) {
+					prog.dismiss();
+					Toast.makeText(getActivity().getApplicationContext(), "画像の取得に失敗しました。", Toast.LENGTH_SHORT).show();
+				}
+			})
+			.execute(uri);
+		} else {
+			// TODO:内部にストレージされている画像ファイルを読み込む
+		}
 	}
 	
 	@Override
@@ -99,6 +119,14 @@ public class ImageViewerFragment extends Fragment implements SurfaceHolder.Callb
 		canvas.drawBitmap(_bitmap, _matrix, null);
 		
 		_holder.unlockCanvasAndPost(canvas);
+	}
+	
+	public Bitmap getBitmap() {
+		return _bitmap;
+	}
+	
+	public String getUri() {
+		return getArguments().getString(KEY_URI);
 	}
 	
 }

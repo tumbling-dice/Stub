@@ -1,26 +1,24 @@
 public abstract class Plugin extends BindingService {
 	
 	/* Request codes */
-	public static final int REQ_GET_RESOURCE = 10000;
-	public static final int REQ_CLICK_MENU = 10001;
-	public static final int REQ_CLICK_EVENT = 10002;
-	public static final int REQ_RELOAD = 10003;
-	public static final int REQ_POST = 10004;
-	public static final int REQ_MORE = 10005;
+	private static final int REQ_GET_RESOURCE = 10000;
+	private static final int REQ_GET_MENU = 10001;
+	private static final int REQ_CLICK_EVENT = 10002;
+	private static final int REQ_RELOAD = 10003;
+	private static final int REQ_MORE = 10004;
+	private static final int REQ_POST = 10005;
 	
 	/* From client arguments key */
-	public static final String KEY_SCREEN_NAME = "screenName";
-	public static final String KEY_USER_ID = "userId";
-	public static final String KEY_POSITION = "position";
+	private static final String KEY_SCREEN_NAME = "screenName";
+	private static final String KEY_USER_ID = "userId";
+	private static final String KEY_POSITION = "position";
 	
 	/* To client arguments key */
-	public static final String KEY_RESOURCE = "resource";
-	public static final String KEY_CLICK_MENU = "clickMenu";
-	public static final String KEY_MENU_CLOSE = "isMenuClose";
-	public static final String KEY_POST_SUCCESS = "isPostSuccess";
-	public static final String KEY_IMPL = "isImplement";
-	public static final String KEY_REQ_NOT_DEFINED = "notDefined";
-	public static final String KEY_LAYOUT_AUTHORITIES = "layoutAuthorities";
+	private static final String KEY_RESOURCE = "resource";
+	private static final String KEY_GET_MENU = "getMenu";
+	private static final String KEY_MENU_CLOSE = "isMenuClose";
+	private static final String KEY_IMPL = "isImplement";
+	private static final String KEY_REQ_NOT_DEFINED = "notDefined";
 	
 	protected Config _config;
 	private List<TwitterData> _resource;
@@ -38,82 +36,38 @@ public abstract class Plugin extends BindingService {
 		
 		if(args == null) throw new IllegalArgumentException("MessageにBundleが設定されていません。");
 		
-		Bundle ret = new Bundle();
-		
 		switch(msg.what) {
-			// get resources
-			case REQ_GET_RESOURCE:
-				_isImplement = true;
-				_resource = getResource(args.getString(KEY_SCREEN_NAME), args.getLong(KEY_USER_ID, 0));
-				ret.putParcelableArrayList(KEY_RESOURCE, convertToParcelList(_resource));
-				
-				
-				if(_config.isAdvancedLayout()){
-					ret.putString(KEY_LAYOUT_AUTHORITIES, getLayoutFileAuthorities());
-				}
-				
-				break;
-			// get click menus
-			case REQ_CLICK_MENU:
-				_isImplement = _config.hasClickEvent();
+		// get resources
+		case REQ_GET_RESOURCE:
+			return onGetResource(args);
 			
-				if(_isImplement) {
-					ret.putSerializable(KEY_CLICK_MENU, getClickMenu());
-				}
-				break;
-			// fire click event
-			case REQ_CLICK_EVENT:
-				_isImplement = _config.hasClickEvent();
+		// get click menus
+		case REQ_GET_MENU:
+			return onGetClickMenues(args);
 			
-				if(_isImplement && (_resource != null && !_resource.isEmpty())) {
-					int position = args.getInt(KEY_POSITION, -1);
-					ret.putBoolean(KEY_MENU_CLOSE, onClickItem(position, _resource.get(position)));
-				}
-				break;
-			// fire reload event
-			case REQ_RELOAD:
-				_isImplement = _config.hasReloadEvent();
+		// fire click event
+		case REQ_CLICK_EVENT:
+			return callOnMenuItemClick(args);
 			
-				if(_isImplement) {
-					List<TwitterData> reloadResource = onReload();
-					
-					ret.putParcelableArrayList(KEY_RESOURCE, convertToParcelList(reloadResource));
-				
-					for(TwitterData newData : reloadResource) {
-						_resource.add(newData, 0);
-					}
-					
-				}
-				break;
-			// fire post event
-			case REQ_POST:
-				_isImplement = _config.hasPostEvent();
+		// fire reload event
+		case REQ_RELOAD:
+			return callOnReload(args);
 			
-				if(_isImplement) {
-					ret.putBoolean(KEY_POST_SUCCESS, onPost());
-				}
-				break;
-			// fire get more resources event
-			case REQ_MORE:
-				_isImplement = _config.hasMoreEvent();
-			
-				if(_isImplement) {
-					List<TwitterData> reloadResource = onMore();
-					ret.putParcelableArrayList(KEY_RESOURCE, convertToParcelList(reloadResource));
-					
-					for(TwitterData newData : reloadResource) {
-						_resource.add(newData);
-					}
-				}
-				break;
-			// not defined request
-			default:
-				Log.w("Plugin", String.format("this request is not defined. sent request code is %d.", msg.what));
-				ret.putBoolean(KEY_REQ_NOT_DEFINED, true);
-				break;
-		}
+		// fire get more resources event
+		case REQ_MORE:
+			return callOnMore(args);
 		
-		return ret;
+		// fire post event
+		case REQ_POST:
+			return callOnPost(args);
+			
+		// not defined request
+		default:
+			Log.w("Plugin", String.format("this request is not defined. sent request code is %d.", msg.what));
+			Bundle ret = new Bundle();
+			ret.putBoolean(KEY_REQ_NOT_DEFINED, true);
+			return ret;
+		}
 	}
 	
 	@Override
@@ -134,6 +88,7 @@ public abstract class Plugin extends BindingService {
 	public static ArrayList<ParcelTwitterData> convertToParcelList(List<TwitterData> resource) {
 		
 		ArrayList<ParcelTwitterData> datas = new ArrayList<ParcelTwitterData>();
+		
 		for(TwitterData d : resource) {
 			datas.add(convertToParcel(data));
 		}
@@ -141,11 +96,104 @@ public abstract class Plugin extends BindingService {
 		return datas;
 	}
 	
+	public final List<TwitterData> getResources() {
+		return _resource != null ? new ArrayList<TwitterData>(_resource) : null;
+	}
+	
+	private Bundle onGetResource(Bundle args) {
+		_isImplement = true;
+		Bundle ret = new Bundle();
+		_resource = getResource(args.getString(KEY_SCREEN_NAME), args.getLong(KEY_USER_ID, 0));
+		
+		if(_resource == null) _resource = new ArrayList<TwitterData>();
+		
+		ret.putParcelableArrayList(KEY_RESOURCE, convertToParcelList(_resource));
+		
+		return ret;
+	}
+	
+	private Bundle onGetClickMenues(Bundle args) {
+		Bundle ret = new Bundle();
+		
+		_isImplement = _config.hasClickEvent();
+		
+		if(_isImplement && _resource != null && !_resource.isEmpty()) {
+			int position = args.getInt(KEY_POSITION, -1);
+			ret.putSerializable(KEY_GET_MENU, getClickMenu(position, _resource.get(position)));
+		}
+		
+		return ret;
+	}
+	
+	private Bundle callOnMenuItemClick(Bundle args) {
+		Bundle ret = new Bundle();
+		
+		_isImplement = _config.hasClickEvent();
+		
+		if(_isImplement && _resource != null && !_resource.isEmpty()) {
+			int position = args.getInt(KEY_POSITION, -1);
+			ret.putBoolean(KEY_MENU_CLOSE, onMenuItemClick(position, _resource.get(position)));
+		}
+		
+		return ret;
+	}
+	
+	private Bundle callOnReload(Bundle args) {
+		Bundle ret = new Bundle();
+		
+		_isImplement = _config.hasReloadEvent();
+		
+		if(_isImplement) {
+			List<TwitterData> reloadResource = onReload(args.getString(KEY_SCREEN_NAME), args.getLong(KEY_USER_ID, 0));
+			
+			ret.putParcelableArrayList(KEY_RESOURCE, convertToParcelList(reloadResource));
+			
+			if(_resource == null) _resource = new ArrayList<TwitterData>();
+			
+			for(TwitterData newData : reloadResource) {
+				_resource.add(newData, 0);
+			}
+			
+		}
+		
+		return ret;
+	}
+	
+	private Bundle callOnMore(Bundle args) {
+		Bundle ret = new Bundle();
+		
+		_isImplement = _config.hasMoreEvent();
+		
+		if(_isImplement) {
+			List<TwitterData> reloadResource = onMore(args.getString(KEY_SCREEN_NAME), args.getLong(KEY_USER_ID, 0));
+			ret.putParcelableArrayList(KEY_RESOURCE, convertToParcelList(reloadResource));
+			
+			if(_resource == null) _resource = new ArrayList<TwitterData>();
+			
+			for(TwitterData newData : reloadResource) {
+				_resource.add(newData);
+			}
+		}
+		
+		return ret;
+	}
+	
+	private Bundle callOnPost(Bundle args) {
+		Bundle ret = new Bundle();
+		
+		_isImplement = _config.hasPostEvent();
+		
+		if(_isImplement) {
+			onPost(args.getString(KEY_SCREEN_NAME), args.getLong(KEY_USER_ID, 0));
+		}
+		
+		return ret;
+	}
+	
 	abstract List<TwitterData> getResource(String screenName, long userId);
-	abstract String getLayoutFileAuthorities();
-	abstract ArrayList<String> getClickMenu();
-	abstract boolean onClickItem(int position, TwitterData data);
-	abstract List<TwitterData> onReload();
-	abstract List<TwitterData> onMore();
-	abstract boolean onPost();
+	abstract ArrayList<String> getClickMenues(int resourcePosition, TwitterData data);
+	abstract boolean onMenuItemClick(int menuItemPosition, TwitterData data);
+	abstract List<TwitterData> onReload(String screenName, long userId);
+	abstract List<TwitterData> onMore(String screenName, long userId);
+	abstract void onPost(String screenName, long userId);
 }
