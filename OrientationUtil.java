@@ -7,10 +7,12 @@ public final class OrientationUtil {
 	public static final int O_REVERSE_LANDSCAPE = 4;
 	
 	public static final int getCurrentOrientationLock(Context context) {
-		return Integer.parseInt(PreferenceManager.getDefaultSharedPreferences(context).getString("orientationLockValues", "0"));
+		return Integer.parseInt(PreferenceManager.getDefaultSharedPreferences(context).getString("orientationLockValue", "0"));
 	}
 	
-	public static final void setLockOrientation(Activity activity, int orientation) {
+	public static final boolean setLockOrientation(Activity activity, int orientation) {
+		int currentOrientation = getCurrentOrientation(activity.getApplicationContext());
+		
 		switch(orientation) {
 		case O_NOTHING:
 			activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
@@ -30,6 +32,12 @@ public final class OrientationUtil {
 		default:
 			activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
 		}
+		
+		return orientation != O_NOTHING && currentOrientation != orientation;
+	}
+	
+	public static final boolean setLockOrientation(Activity activity) {
+		return setLockOrientation(activity, getCurrentOrientationLock(activity.getApplicationContext());
 	}
 	
 	public static final int getCurrentOrientation(Context context) {
@@ -43,6 +51,11 @@ public final class OrientationUtil {
 		default:
 			return O_PORTRAIT;
 		}
+	}
+	
+	public static final boolean isPortrate(Context context) {
+		int orientation = getCurrentOrientation(context);
+		return orientation == O_PORTRAIT || orientation == O_REVERSE_PORTRAIT;
 	}
 	
 }
