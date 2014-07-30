@@ -1,7 +1,6 @@
 public class ImageViewerFragment extends Fragment implements SurfaceHolder.Callback {
 	
 	public static final String KEY_URI = "uri";
-	public static final String KEY_IS_NETWORK = "isNetwork";
 	
 	private Bitmap _bitmap;
 	private SurfaceHolder _holder;
@@ -17,11 +16,9 @@ public class ImageViewerFragment extends Fragment implements SurfaceHolder.Callb
 		}
 	};
 	
-	public static Bundle createArgument(String uri, boolean isNetwork) {
+	public static Bundle createArgument(String uri) {
 		Bundle args = new Bundle();
 		args.putString(KEY_URI, uri);
-		if(isNetwork) args.putBoolean(KEY_IS_NETWORK, true);
-		
 		return args;
 	}
 	
@@ -54,42 +51,56 @@ public class ImageViewerFragment extends Fragment implements SurfaceHolder.Callb
 		
 		if(args == null || !args.containsKey(KEY_URI)) throw new IllegalArgumentException("URIがありません");
 		
-		String uri = args.getString(KEY_URI);
+		BitmapUtil bitmapUtil = null;
+		Context context = getActivity().getApplicationContext();
 		
-		if(args.getBoolean(KEY_IS_NETWORK, false)) {
-			// ネットワーク経由で画像を取得する
-			final ProgressDialog prog = ActivityUtil.createProgress("画像を読み込んでいます...", getActivity());
-			prog.setTitle("通信中");
-			prog.show();
-			new ImageLoader(60000, new Action1<Bitmap>(){
-				@Override
-				public void call(Bitmap bitmap){
-					prog.dismiss();
+		try {
+			bitmapUtil = new BitmapUtil(args.getString(KEY_URI));
+		} catch(IllegalArgumentException e) {
+			Toast.makeText(context, "画像ではないURIが入力されました。", Toast.LENGTH_SHORT).show();
+			return
+		}
+		
+		final ProgressDialog prog = ActivityUtil.createProgress("画像を読み込んでいます...", getActivity());
+		prog.setTitle("通信中");
+		prog.show();
+		
+		bitmapUtil.getBitmapAsync(context, new Action1<Bitmap>(){
+			@Override
+			public void call(Bitmap bitmap){
+				if(prog != null && prog.isShowing()) prog.dismiss();
+				
+				if(bitmap == null) {
+					Toast.makeText(getActivity().getApplicationContext()
+						, "画像の取得に失敗しました。", Toast.LENGTH_SHORT).show();
 					
-					if(bitmap == null) {
-						Toast.makeText(getActivity().getApplicationContext()
-							, "画像の取得に失敗しました。", Toast.LENGTH_SHORT).show();
-						
-						return;
-					}
-					
-					_bitmap = bitmap;
-					_x = bitmap.getWidth();
-					_y = bitmap.getHeight();
-					_matrix = new Matrix();
-					
-					draw();
+					return;
 				}
-			}, new Action1<Exception>(){
-				@Override
-				public void call(Exception e) {
-					prog.dismiss();
-					Toast.makeText(getActivity().getApplicationContext(), "画像の取得に失敗しました。", Toast.LENGTH_SHORT).show();
-				}
-			})
-			.execute(uri);
-		} else {
-			// TODO:内部にストレージされている画像ファイルを読み込む
+				
+				_bitmap = bitmap;
+				_x = bitmap.getWidth();
+				_y = bitmap.getHeight();
+				_matrix = new Matrix();
+				
+				draw();
+			}
+		}, new Action1<Exception>(){
+			@Override
+			public void call(Exception e) {
+				e.printStacktrace();
+				if(prog != null && prog.isShowing()) prog.dismiss();
+				Toast.makeText(getActivity().getApplicationContext(), "画像の取得に失敗しました。", Toast.LENGTH_SHORT).show();
+			}
+		});
+	}
+	
+	@Override
+	public void onDestroy() {
+		super.onDestroy();
+		
+		if(_bitmap != null) {
+			_bitmap.recycle();
+			_bitmap = null;
 		}
 	}
 	
