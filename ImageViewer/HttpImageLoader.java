@@ -1,5 +1,16 @@
+package inujini_.nuechin.test.util.image;
+
+import inujini_.function.Function.Action1;
+import inujini_.nuechin.test.util.image.ImageUtil.BitmapResult;
+import android.annotation.SuppressLint;
+import android.graphics.Bitmap;
+import android.graphics.Point;
+import android.net.Uri;
+import android.os.AsyncTask;
+import android.os.Build;
+
 public class HttpImageLoader extends AsyncTask<Uri, Void, BitmapResult> {
-	
+
 	/**
 	 * {@link HttpImageLoader HttpImageLoader}#onPostExecuteで呼び出されるコールバック
 	 * @see HttpImageLoader
@@ -10,30 +21,30 @@ public class HttpImageLoader extends AsyncTask<Uri, Void, BitmapResult> {
 		 * @param key {@link HttpImageLoader HttpImageLoader}に渡したKey。
 		 * @param bitmap {@link HttpImageLoader HttpImageLoader}で読み込まれたBitmap。nullの場合がある。
 		 */
-		void call(Object, Bitmap);
+		void call(Object key, Bitmap bitmap);
 	}
-	
-	private WeakReference<ImageCallback> _callback;
-	private WeakReference<Action1<Exception>> _onError;
+
+	private ImageCallback _callback;
+	private Action1<Exception> _onError;
 	private Point _maxSize;
 	private Object _key;
 	private boolean _isSaveCache;
 	private boolean _isThrowException;
 	private int _timeout = 30000;
-	
+
 	/**
 	 * ImageLoader
 	 * @param key callbackで対象のViewを特定するためのKey。
 	 * @param maxSize 取得するBitmapのサイズ。
 	 * @param callback Bitmap取得後のコールバック。
 	 */
-	public ImageLoader(Object key, Point maxSize, ImageCallback callback) {
+	public HttpImageLoader(Object key, Point maxSize, ImageCallback callback) {
 		_key = key;
 		_maxSize = maxSize;
-		_callback = Util.toWeak(callback);
+		_callback = callback;
 		_isThrowException = true;
 	}
-	
+
 	/**
 	 * ImageLoader
 	 * @param key callbackで対象のViewを特定するためのKey。
@@ -41,13 +52,13 @@ public class HttpImageLoader extends AsyncTask<Uri, Void, BitmapResult> {
 	 * @param callback Bitmap取得後のコールバック。
 	 * @param onError Bitmap取得時に例外が発生した場合のコールバック。
 	 */
-	public ImageLoader(Object key, Point maxSize, ImageCallback callback, Action1<Exception> onError) {
+	public HttpImageLoader(Object key, Point maxSize, ImageCallback callback, Action1<Exception> onError) {
 		_key = key;
 		_maxSize = maxSize;
-		_callback = Util.toWeak(callback);
-		_onError = Util.toWeak(onError);
+		_callback = callback;
+		_onError = onError;
 	}
-	
+
 	/**
 	 * キャッシュ保存フラグ
 	 * @param trueの場合は取得したBitmapをキャッシュに保存する。デフォルトではfalse。
@@ -55,7 +66,7 @@ public class HttpImageLoader extends AsyncTask<Uri, Void, BitmapResult> {
 	public void setSaveCache(boolean isSaveCache) {
 		_isSaveCache = isSaveCache;
 	}
-	
+
 	/**
 	 * <p>例外無視フラグ</p>
 	 * <p>例外が発生しても握りつぶす。ただし、コンストラクタでonErrorが設定されている場合はこのフラグを使用しない。</p>
@@ -63,7 +74,7 @@ public class HttpImageLoader extends AsyncTask<Uri, Void, BitmapResult> {
 	public void notThrowException() {
 		_isThrowException = false;
 	}
-	
+
 	/**
 	 * タイムアウト設定
 	 * @param timeout 読み込みタイムアウト値（ミリ秒）。デフォルトでは30秒。
@@ -71,29 +82,29 @@ public class HttpImageLoader extends AsyncTask<Uri, Void, BitmapResult> {
 	public void setTimeout(int timeout) {
 		_timeout = timeout;
 	}
-	
+
 	@Override
 	protected BitmapResult doInBackground(Uri... param) {
-		return BitmapUtil.getBitmapFromHttp(param[0], _maxSize, _timeout, _isSaveCache);
+		return ImageUtil.getBitmapFromHttp(param[0], _maxSize, _timeout, _isSaveCache);
 	}
-	
+
 	@Override
 	protected void onPostExecute(BitmapResult result) {
 		if(!result.hasError()) {
-			_callback.get.call(_key, result.getBitmap());
+			_callback.call(_key, result.getBitmap());
 		} else {
 			if(_onError != null) {
-				_onError.get().call(result.getError());
+				_onError.call(result.getError());
 			} else {
 				if(_isThrowException) {
 					throw new RuntimeException(result.getError());
 				} else {
-					result.getError().printStacktrace();
+					result.getError().printStackTrace();
 				}
 			}
 		}
 	}
-	
+
 	@SuppressLint("NewApi")
 	public void execute(Uri param) {
 		if (Build.VERSION.SDK_INT <= 12) {
