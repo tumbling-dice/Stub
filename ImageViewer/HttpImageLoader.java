@@ -30,10 +30,11 @@ public class HttpImageLoader extends AsyncTask<Uri, Void, BitmapResult> {
 	private Object _key;
 	private boolean _isSaveCache;
 	private boolean _isThrowException;
+	private boolean _isSaveFile;
 	private int _timeout = 30000;
 
 	/**
-	 * ImageLoader
+	 * HttpImageLoader
 	 * @param key callbackで対象のViewを特定するためのKey。
 	 * @param maxSize 取得するBitmapのサイズ。
 	 * @param callback Bitmap取得後のコールバック。
@@ -46,7 +47,7 @@ public class HttpImageLoader extends AsyncTask<Uri, Void, BitmapResult> {
 	}
 
 	/**
-	 * ImageLoader
+	 * HttpImageLoader
 	 * @param key callbackで対象のViewを特定するためのKey。
 	 * @param maxSize 取得するBitmapのサイズ。
 	 * @param callback Bitmap取得後のコールバック。
@@ -61,10 +62,19 @@ public class HttpImageLoader extends AsyncTask<Uri, Void, BitmapResult> {
 
 	/**
 	 * キャッシュ保存フラグ
-	 * @param trueの場合は取得したBitmapをキャッシュに保存する。デフォルトではfalse。
+	 * @param isSaveCache trueの場合は取得したBitmapをキャッシュに保存する。デフォルトではfalse。
 	 */
 	public void setSaveCache(boolean isSaveCache) {
 		_isSaveCache = isSaveCache;
+	}
+	
+	/**
+	 * キャッシュをローカルファイルとしても保存する
+	 * @param isSaveFile <p>trueの場合は取得したBitmapをキャッシュに保存する。デフォルトではfalse。</p>
+	 * <p>ただし、{@link setSaveCache(boolean) setSaveCache}でtrueがセットされていない場合はこの値は用いられない。</p>
+	 */
+	public void setSaveFile(boolean isSaveFile) {
+		_isSaveFile = isSaveFile;
 	}
 
 	/**
@@ -85,7 +95,7 @@ public class HttpImageLoader extends AsyncTask<Uri, Void, BitmapResult> {
 
 	@Override
 	protected BitmapResult doInBackground(Uri... param) {
-		return ImageUtil.getBitmapFromHttp(param[0], _maxSize, _timeout, _isSaveCache);
+		return ImageUtil.getBitmapFromHttp(param[0], _maxSize, _timeout, _isSaveCache, _isSaveFile);
 	}
 
 	@Override

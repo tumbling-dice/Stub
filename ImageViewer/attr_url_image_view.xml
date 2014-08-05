@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="UrlImageView">
+        <attr name="force_load" format="boolean"/>
+        <attr name="save_cache" format="boolean"/>
+        <attr name="save_file" format="boolean"/>
+    </declare-styleable>
+</resources>

@@ -65,13 +65,14 @@ public final class ImageCache {
 	 * 登録
 	 * @param key
 	 * @param bitmap
+	 * @param isSaveFile
 	 */
-	public static void put(String key, Bitmap bitmap) {
+	public static void put(String key, Bitmap bitmap, boolean isSaveFile) {
 		if(key == null || bitmap == null) return;
 		_cache.put(key, bitmap);
 
 		// キャッシュファイルに登録しておく（全上書き）
-		putCacheFile(key, bitmap);
+		if(isSaveFile) putCacheFile(key, bitmap);
 	}
 
 	/**
