@@ -107,12 +107,20 @@ public class HttpImageLoader extends AsyncTask<Uri, Void, BitmapResult> {
 				_onError.call(result.getError());
 			} else {
 				if(_isThrowException) {
+					destroy();
 					throw new RuntimeException(result.getError());
 				} else {
 					result.getError().printStackTrace();
 				}
 			}
 		}
+		
+		destroy();
+	}
+	
+	public void destroy() {
+		_callback = null;
+		_onError = null;
 	}
 
 	@SuppressLint("NewApi")
