@@ -1,25 +1,43 @@
 public final class HttpImageManager {
 	
 	private static final int MAX_THREAD = 128;
-	private static Handler _handler;
+	private static final int MSG_CALLBACK = 0;
+	private static final int MSG_ONERROR = 1;
+	
 	private static ThreadPoolExecutor _executor;
 	
 	static {
 		int coreCount = Runtime.getRuntime().availableProcessors();
+		
 		_executor = new ThreadPoolExecutor(coreCount, MAX_THREAD, 1L, TimeUnit.SECOND
-			, new LinkedBlockingQueue<ImageRunnable>(coreCount));
-		
-		_executor.setRejectedExecutionHandler(new RejectedExecutionHandler(){
-			@Override
-			public void rejectedExecution(Runnable r, ThreadPoolExecutor executor) {
-				if(r instanceof ImageFuture) ((ImageFuture) r).cancel(true);
-			}
-		});
-		
-		_handler = new Handler(Looper.getMainLooper());
+			, new LinkedBlockingQueue<ImageRunnable>(coreCount)
+			, new ThreadFactory() {
+				private final AtomicInteger _count = new AtomicInteger(1);
+				
+				@Override
+				public Thread newThread(Runnable r) {
+					Thread t = new Thread(r, "HttpImageManager #" + _.getAndIncrement());
+					t.setDaemon(true);
+					return t;
+				}
+				
+			}, new RejectedExecutionHandler(){
+				@Override
+				public void rejectedExecution(Runnable r, ThreadPoolExecutor executor) {
+					if(r instanceof ImageFuture) ((ImageFuture) r).cancel(true);
+				}
+			});
 	}
 	
-	public static class ImageCaller extends Callable<BitmapResult> {
+	public interface ImageCallback {
+		void call(Object key, Bitmap bitmap);
+	}
+	
+	public interface ErrorHandler {
+		void call(Exception e);
+	}
+	
+	public static class ImageCaller implements Callable<BitmapResult> {
 		
 		private final String _url
 		private final Point _maxSize;
@@ -46,33 +64,73 @@ public final class HttpImageManager {
 		
 		@Override
 		public BitmapResult call() throws Exception {
+			Process.setThreadPriority(Process.THREAD_PRIORITY_BACKGROUND);
 			return ImageUtil.getBitmapFromHttp(_url, _maxSize, _timeout, _isSaveCache, _isSaveFile);
+		}
+	}
+	
+	static class ImageHandler extends Handler {
+		
+		private Object _key;
+		private ImageCallback _callback;
+		private ErrorHandler _onError;
+		private boolean _isThrowException;
+		
+		public ImageHandler(Looper looper, Object key, ImageCallback callback, boolean isThrowException) {
+			super(looper);
+			_key = key;
+			_callback = callback;
+			_isThrowException = isThrowException;
+		}
+		
+		public ImageHandler(Looper looper, Object key, ImageCallback callback, ErrorHandler onError) {
+			super(looper);
+			_key = key;
+			_callback = callback;
+			_onError = onError;
+		}
+		
+		public void setNotThrowException() {
+			_isThrowException = false;
+		}
+		
+		@Override
+		public void handleMessage(Message msg) {
+			switch (msg.what) {
+			case MSG_CALLBACK:
+				_callback.call(_key, (Bitmap) msg.obj);
+				break;
+			case MSG_ONERROR:
+				Exception e = (Exception) msg.obj;
+				if(_onError != null) {
+					_onError.call(e);
+				} else if(_isThrowException) {
+					_callback = null;
+					new RuntimeException(e);
+				} else {
+					e.printStackTrace();
+				}
+				break;
+			}
+			
+			_callback = null;
+			_onError = null;
+			_key = null;
 		}
 	}
 	
 	static class ImageFuture extends FutureTask<BitmapResult> {
 		
-		private Handler _handler;
-		private ImageCallback _callback;
-		private Action1<Exception> _onError;
-		private boolean _isThrowException;
+		private ImageHandler _handler;
 		
-		public ImageFuture(Handler handler, ImageCaller caller, ImageCallback callback, boolean isThrowException) {
+		public ImageFuture(Looper looper, Object key, ImageCaller caller, ImageCallback callback, boolean isThrowException) {
 			super(caller);
-			_handler = handler;
-			_callback = callback;
-			_isThrowException = isThrowException;
+			_handler = new ImageHandler(looper, key, callback, isThrowException);
 		}
 		
-		public ImageFuture(Handler handler, ImageCaller caller, ImageCallback callback, Action1<Exception> onError) {
+		public ImageFuture(Looper looper, Object key, ImageCaller caller, ImageCallback callback, ErrorHandler onError) {
 			super(caller);
-			_handler = handler;
-			_callback = callback;
-			_onError = onError;
-		}
-		
-		public void notThrowException() {
-			_isThrowException = false;
+			_handler = new ImageHandler(looper, key, callback, onError);
 		}
 		
 		@Override
@@ -80,61 +138,34 @@ public final class HttpImageManager {
 			try {
 				BitmapResult result = get();
 				
-				if(!result.hasError() && _handler != null) {
-					_handler.post(new Runnable() {
-						@Override
-						public void run() {
-							if(_callback != null)
-								_callback.call(_key, result.getBitmap());
-							destroy();
-						}
-					});
+				if(!result.hasError()) {
+					_handler.obtainMessage(MSG_CALLBACK, result.getBitmap()).sendToTarget();
 				} else {
-					onError(result.getError(), _isThrowException);
+					_handler.obtainMessage(MSG_ONERROR, result.getError()).sendToTarget();
 				}
 			} catch (InterruptedException e) {
-				onError(e, false);
+				_handler.setNotThrowException();
+				_handler.obtainMessage(MSG_ONERROR, e).sendToTarget();
 			} catch (ExecutionException e) {
-				onError(e, _isThrowException);
+				_handler.obtainMessage(MSG_ONERROR, e).sendToTarget();
 			} catch (CancellationException e) {
-				onError(e, false);
+				_handler.setNotThrowException();
+				_handler.obtainMessage(MSG_ONERROR, e).sendToTarget();
+			} catch (Exception e) {
+				_handler.setNotThrowException();
+				_handler.obtainMessage(MSG_ONERROR, e).sendToTarget();
+			} finally {
+				_handler = null;
 			}
-		}
-		
-		private void onError(final Exception e, boolean isThrowException) {
-			if(_onError != null && _handler != null) {
-				_handler.post(new Runnable() {
-					@Override
-					public void run() {
-						if(_onError != null)
-							_onError.call(e);
-						destroy();
-					}
-				});
-			} else {
-				if(isThrowException) {
-					destroy();
-					throw new RuntimeException(e);
-				} else {
-					destroy();
-					e.printStackTrace();
-				}
-			}
-		}
-		
-		public void destroy() {
-			_onError = null;
-			_callback = null;
-			_handler = null;
 		}
 	}
 	
-	public static void execute(ImageCaller caller, ImageCallback callback, boolean isThrowException) {
-		_executor.execute(new ImageFuture(_handler, caller, callback, isThrowException));
+	public static void execute(Object key, ImageCaller caller, ImageCallback callback, boolean isThrowException) {
+		_executor.execute(new ImageFuture(Looper.getMainLooper(), key, caller, callback, isThrowException));
 	}
 	
-	public static void execute(ImageCaller caller, ImageCallback callback, Action1<Exception> onError) {
-		_executor.execute(new ImageFuture(_handler, caller, callback, onError));
+	public static void execute(Object key, ImageCaller caller, ImageCallback callback, ErrorHandler onError) {
+		_executor.execute(new ImageFuture(Looper.getMainLooper(), key, caller, callback, onError));
 	}
 	
 	public static void shutdown() {
