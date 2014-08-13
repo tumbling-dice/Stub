@@ -138,6 +138,10 @@ public abstract class ListFilter<T> extends Filter {
 		_listener = listener;
 	}
 	
+	public CharSequence getConstraint() {
+		return _constraint;
+	}
+	
 	/**
 	 * フィルタリングルール
 	 * @param data 検査するデータ
