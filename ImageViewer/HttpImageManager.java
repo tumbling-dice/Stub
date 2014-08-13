@@ -6,35 +6,31 @@ public final class HttpImageManager {
 	
 	private static ThreadPoolExecutor _executor;
 	/** 処理中のkeyを保存しておくList */
-	private static volatile ArrayList<Object> _keyHolder = new ArrayList<Object>();
+	private static final ArrayList<Object> _keyHolder = new ArrayList<Object>();
 	
 	static {
-		_executor = init();
+		init();
 	}
 	
 	public static void execute(Object key, ImageCaller caller, ImageCallback callback, boolean isThrowException) {
-		if(_keyHolder == null) {
-			_keyHolder = new ArrayList<Object>();
-		} else if(_keyHolder.contains(key)) {
-			return;
+		
+		synchronized(_keyHolder) {
+			if(_keyHolder.contains(key)) return;
+			_keyHolder.add(key);
+			if(_executor == null) init();
 		}
 		
-		_keyHolder.add(key);
-		
-		if(_executor == null) _executor = init();
 		_executor.execute(new ImageFuture(key, caller, callback, isThrowException));
 	}
 	
 	public static void execute(Object key, ImageCaller caller, ImageCallback callback, ErrorHandler onError) {
-		if(_keyHolder == null) {
-			_keyHolder = new ArrayList<Object>();
-		} else if(_keyHolder.contains(key)) {
-			return;
+		
+		synchronized(_keyHolder) {
+			if(_keyHolder.contains(key)) return;
+			_keyHolder.add(key);
+			if(_executor == null) init();
 		}
 		
-		_keyHolder.add(key);
-		
-		if(_executor == null) _executor = init();
 		_executor.execute(new ImageFuture(key, caller, callback, onError));
 	}
 	
@@ -44,30 +40,27 @@ public final class HttpImageManager {
 		
 		try {
 			_executor.shutdown();
-			if(!_executor.awaitTermination(1L, TimeUnit.SECOND)) {
+			if(!_executor.awaitTermination(1L, TimeUnit.SECONDS)) {
 				_executor.shutdownNow();
 			}
 		} catch(InterruptedException e) {
 			_executor.shutdownNow();
 		} finally {
 			_executor = null;
-			if(_keyHolder != null) {
-				_keyHolder.clear();
-				_keyHolder = null;
-			}
+			_keyHolder.clear();
 		}
 	}
 	
-	private static ThreadPoolExecutor init() {
-		return new ThreadPoolExecutor(3, MAX_THREAD
-			, 1L, TimeUnit.SECOND
-			, new LinkedBlockingQueue<Runnable>(10)
+	private static void init() {
+		_executor = new ThreadPoolExecutor(3, MAX_THREAD
+			, 1L, TimeUnit.SECONDS
+			, new LinkedBlockingQueue<Runnable>(20)
 			, new ThreadFactory() {
 				private final AtomicInteger _count = new AtomicInteger(1);
 				
 				@Override
 				public Thread newThread(Runnable r) {
-					Thread t = new Thread(r, "HttpImageManager #" + _.getAndIncrement());
+					Thread t = new Thread(r, "HttpImageManager #" + _count.getAndIncrement());
 					t.setDaemon(true);
 					return t;
 				}
@@ -93,7 +86,7 @@ public final class HttpImageManager {
 	/** バックグラウンドスレッドで実行する内容（Caller） */
 	public static class ImageCaller implements Callable<BitmapResult> {
 		
-		private final String _url
+		private final String _url;
 		private final Point _maxSize;
 		private boolean _isSaveCache;
 		private boolean _isSaveFile;
@@ -199,7 +192,9 @@ public final class HttpImageManager {
 		
 		@Override
 		public void handleMessage(Message msg) {
-			if(_keyHolder != null) _keyHolder.remove(_key);
+			synchronized(_keyHolder) {
+				_keyHolder.remove(_key);
+			}
 			
 			switch (msg.what) {
 			case MSG_CALLBACK:
