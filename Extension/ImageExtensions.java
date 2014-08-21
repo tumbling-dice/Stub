@@ -58,7 +58,7 @@ public final class ImageExtensions {
 
 		if(bmp == null) return null;
 
-		Bitmap bitmap = bmp.copy(Bitmap.Config.ARGB_8888, true);
+		val bitmap = bmp.copy(Bitmap.Config.ARGB_8888, true);
 
 		int width = bitmap.getWidth();
 		int height = bitmap.getHeight();
