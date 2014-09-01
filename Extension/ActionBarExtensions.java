@@ -1,43 +1,44 @@
+@ExtensionMethod({MenuItemCompat.class})
 public final class ActionBarExtensions {
 	
 	public static boolean collapseActionView(MenuItem item) {
-		return MenuItemCompat.collapseActionView(item);
+		return item.collapseActionView();
 	}
 	
 	public static boolean expandActionView(MenuItem item) {
-		return MenuItemCompat.expandActionView(item);
+		return item.expandActionView();
 	}
 	
 	public static ActionProvider getActionProvider(MenuItem item) {
-		return MenuItemCompat.getActionProvider(item);
+		return item.getActionProvider();
 	}
 	
 	public static View getActionView(MenuItem item) {
-		return MenuItemCompat.getActionView(item);
+		return item.getActionView();
 	}
 	
 	public static boolean isActionViewExpanded(MenuItem item) {
-		return MenuItemCompat.isActionViewExpanded(item);
+		return item.isActionViewExpanded();
 	}
 	
 	public static MenuItem setActionProvider(MenuItem item, ActionProvider provider) {
-		return MenuItemCompat.setActionProvider(item, provider);
+		return item.setActionProvider(provider);
 	}
 	
 	public static MenuItem setActionView(MenuItem item, int resId) {
-		return MenuItemCompat.setActionView(item, resId);
+		return item.setActionView(resId);
 	}
 	
 	public static MenuItem setActionView(MenuItem item, View view) {
-		return MenuItemCompat.setActionView(item, view);
+		return item.setActionView(view);
 	}
 	
 	public static MenuItem setOnActionExpandListener(MenuItem item, MenuItemCompat.OnActionExpandListener listener) {
-		return MenuItemCompat.setOnActionExpandListener(item, listener);
+		return item.setOnActionExpandListener(listener);
 	}
 	
 	public static void setShowAsAction(MenuItem item, int actionEnum) {
-		MenuItemCompat.setShowAsAction(item, actionEnum);
+		item.setShowAsAction(actionEnum);
 	}
 	
 	public static void actionbarUpsideDown(ActionBarActivity activity) {

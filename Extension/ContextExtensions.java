@@ -1,35 +1,15 @@
 public final class ContextExtensions {
 	
 	public static <T extends Serializable> void saveSerializable(Context context, T obj, String path) {
-		FileOutputStream fos = null;
-		ObjectOutputStream oos = null;
- 
+		
 		try {
-			try {
-				fos = context.openFileOutput(path, 0);
-			} catch (FileNotFoundException e) {
-				e.printStackTrace();
-				return;
-			}
- 
-			try {
-				if (fos != null) {
-					oos = new ObjectOutputStream(fos);
-					if (oos != null) oos.writeObject(obj);
-				}
-			} catch (IOException e) {
-				e.printStackTrace();
-				return;
-			}
-		} finally {
-			if(fos != null) {
-				try {
-					if(oos != null) oos.close();
-					fos.close();
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-			}
+			@Cleanup FileOutputStream fos = context.openFileOutput(path, 0);
+			@Cleanup ObjectOutputStream oos = new ObjectOutputStream(fos);
+			oos.writeObject(obj);
+		} catch(FileNotFoundException e) {
+			e.printStackTrace();
+		} catch(IOException e) {
+			e.printStackTrace();
 		}
 
 	}
