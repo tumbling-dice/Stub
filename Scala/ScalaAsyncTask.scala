@@ -7,7 +7,7 @@ abstract class ScalaAsyncTask[+Source, +Return] extends AsyncEvents[Source, Retu
 			@throws(classOf[Exception])
 			override def call(): Option[Return] = {
 				Process.setThreadPriority(Process.THREAD_PRIORITY_BACKGROUND)
-				background(this.mParam)
+				background(this.arg)
 			}
 		}
 		
@@ -40,17 +40,18 @@ abstract class ScalaAsyncTask[+Source, +Return] extends AsyncEvents[Source, Retu
 	
 }
 
+
 object ScalaAsyncTask {
 	private val LOG_TAG = "ScalaAsyncTask"
 	private val MESSAGE_POST_RESULT = 1
 	private val MESSAGE_POST_RESULT_NONE = 2
 	private val MESSAGE_POST_RESULT_ERROR = 3
 	
-	private val sHandler = new InternalHandler(Looper.getMainLooper());
+	private val sHandler = new InternalHandler(Looper.getMainLooper())
 	
 	val THREAD_POOL_EXECUTOR = AsyncTask.THREAD_POOL_EXECUTOR
 	
-	private class WorkerRunnable[+Source, +Return](val arg: Source) extends Callable[Option[Return]] { }
+	private class WorkerRunnable[+Source, +Return](val arg: Source) extends Callable[Option[Return]]
 	
 	private class InternalHandler extends Handler {
 		override def handleMessage(msg: Message): Unit = msg.obj match {
@@ -63,6 +64,7 @@ object ScalaAsyncTask {
 			_ => android.util.Log.i(LOG_TAG, "finished.")
 		}
 	}
+	
 }
 
 trait AsyncEvents[+Source, +Return] {
