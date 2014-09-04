@@ -9,6 +9,18 @@ public interface Scraper implements Closeable {
 		private String text;
 		private List<XElement> innerElements;
 		
+		public String getAttributeValue(@NonNull String attributeName) {
+			if(attributes == null) return null;
+			
+			for(val attr : attributes) {
+				if(attributeName.equals(attr.getName()){
+					return attr.getValue();
+				}
+			}
+			
+			return null;
+		}
+		
 		public XElement findInnerElement(String tagName) {
 			return findInnerElement(null, tagName, null);
 		}
@@ -74,7 +86,7 @@ public interface Scraper implements Closeable {
 	}
 	
 	/* methods */
-	protected XmlPullParser createParser();
+	XmlPullParser createParser();
 	List<XElement> extract(String namespace, String tagName, AttributeFilter attributeFilter) throws XmlPullParserException, IOException;
 	XElement specify(String namespace, String tagName, AttributeFilter attributeFilter) throws XmlPullParserException, IOException;
 	

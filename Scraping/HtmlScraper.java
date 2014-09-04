@@ -31,7 +31,7 @@ public final class HtmlScraper extends WebScraper {
 				
 				val attrName = attr.getName();
 				
-				return "id".equals(attrName) && attrValue.replace("#").equals(id);
+				return "id".equals(attrName) && attrValue.equals(id);
 			}
 		});
 	}

@@ -119,7 +119,7 @@ public abstract class WebScraper implements Scraper {
 		val innerElements = new ArrayList<XElement>();
 		boolean isInner = false;
 		
-		while(ev != XmlPullParser.END_TAG) {
+		while(ev != XmlPullParser.END_TAG && ev != XmlPullParser.END_DOCUMENT) {
 			
 			switch(ev) {
 			case XmlPullParser.START_TAG:
