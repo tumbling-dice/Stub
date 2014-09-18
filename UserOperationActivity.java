@@ -1,3 +1,4 @@
+@ExtensionMethod{ SparseArrayToIterable.class, ActionBarExtensions.class }
 public class UserOperationActivity extends ActionBarActivity implements OnItemClickListener {
 	
 	private static final int T_FOLLOW = 0;
@@ -18,6 +19,8 @@ public class UserOperationActivity extends ActionBarActivity implements OnItemCl
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_user_operation);
 		
+		val prog = ActivityUtil.createProgress("", this);
+		
 		
 	}
 	
@@ -25,10 +28,10 @@ public class UserOperationActivity extends ActionBarActivity implements OnItemCl
 	protected void onSaveInstanceState(Bundle outState) {
 		super.onSaveInstanceState(outState);
 		
-		for(int i = 0, size = _cachedData.size(); i < size; i++) {
-			int key = _cachedData.keyAt(i);
+		for(val item : _cachedData.toIterable()) {
+			
 			String bundleKey = null;
-			switch(key) {
+			switch(item.first) {
 			case T_FOLLOW:
 				bundleKey = K_FOLLOW;
 				break;
@@ -43,7 +46,8 @@ public class UserOperationActivity extends ActionBarActivity implements OnItemCl
 				break;
 			}
 			
-			outState.putSerializable(bundleKey, _cachedData.get(key));
+			outState.putSerializable(bundleKey, item.second);
+			
 		}
 		
 		outState.putInt(K_CURRENT_TYPE, _currentType);

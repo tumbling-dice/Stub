@@ -19,7 +19,6 @@ import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.widget.Toast;
 
-@ExtensionMethod({Linq.class})
 public class ScrapingTestActivity extends Activity {
 
 	@Override
