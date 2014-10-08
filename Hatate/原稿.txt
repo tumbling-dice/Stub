@@ -1,0 +1,485 @@
+[Android]PreferenceActivityで使えるPreferenceを自作する
+
+<h3>前書き</h3>
+<p>つい先日、むしゃくしゃして<a href="https://play.google.com/store/apps/details?id=inujini_.hatate">このようなアプリ</a>を作成、公開しました。</p>
+<p>このアプリ自体は内輪ネタの極みなので死ぬほどどうでもいいんですが、色々と個人的に初めての試みがあり、その辺のノウハウをメモしていきたいなと。</p>
+<p>と言うわけで、今回は自分で<a href="http://developer.android.com/reference/android/preference/Preference.html">Preference</a>を継承し、PreferenceActivityから呼べるクラスを作成してみます。</p>
+
+<h3>デフォルトで使用できるPreference</h3>
+<p>androidではSDK上に<a href="http://developer.android.com/reference/android/preference/package-summary.html">いくつかの便利なPreferenceが既に用意されています。</a>PreferenceのKnown Direct Subclassesから引っ張ってみると、こんな感じですね。</p>
+
+<ul>
+<li><a href="http://developer.android.com/reference/android/preference/DialogPreference.html">DialogPreference</a></li>
+<li><a href="http://developer.android.com/reference/android/preference/RingtonePreference.html">RingtonePreference</a></li>
+<li><a href="http://developer.android.com/reference/android/preference/TwoStatePreference.html">TwoStatePreference</a></li>
+</ul>
+
+<p>更に（RingtonePreferenceはちょっと違うけど）上記のKnown Direct Subclassesを継承して作られているのが以下のPreferenceです。</p>
+<ul>
+<li><a href="http://developer.android.com/reference/android/preference/CheckBoxPreference.html">CheckBoxPreference</a></li>
+<li><a href="http://developer.android.com/reference/android/preference/EditTextPreference.html">EditTextPreference</a></li>
+<li><a href="http://developer.android.com/reference/android/preference/ListPreference.html">ListPreference</a></li>
+<li><a href="http://developer.android.com/reference/android/preference/MultiSelectListPreference.html">MultiSelectListPreference</a></li>
+<li><a href="http://developer.android.com/reference/android/preference/SwitchPreference.html">SwitchPreference</a></li>
+</ul>
+
+<p>逆に言えば、上記の中で欲しい機能がなければ自分で実装するしかありません。ただし、見た目上の問題だけであれば、<a href="http://developer.android.com/reference/android/preference/Preference.html#setLayoutResource(int)">Preference#setLayoutResource</a>や<a href="http://developer.android.com/reference/android/preference/Preference.html#setWidgetLayoutResource(int)">Preference#setWidgetLayoutResource</a>である程度差し替えることが可能です。（違いは後述）</p>
+<p>で、今回はSeekBarを持ったPreferenceを作成してみたいと思います。これぐらいデフォルトで実装しておいてほしいものです。</p>
+
+<h3>Preferenceのレイアウト</h3>
+
+<p>そもそもPreferenceを継承して何かを作るとき、まず最初にどれから作っていけばいいのか、と言うのは、中々難しい問題です。</p>
+<p>ただ、他のPreferenceと合わせた時に違和感のあるレイアウトだと困ります。と言うわけで、レイアウト関連から考えていきましょう。</p>
+<p>Preferenceのデフォルトレイアウトについては<a href="http://yuki312.blogspot.jp/2012/03/androidpreference.html">この記事</a>が非常によくまとまっています。そして結局のところ、<a href="http://grepcode.com/file/repository.grepcode.com/java/ext/com.google.android/android/4.0.3_r1/frameworks/base/core/res/res/layout/preference.xml?av=f">preference.xml</a>か<a href="http://grepcode.com/file/repository.grepcode.com/java/ext/com.google.android/android/4.0.3_r1/frameworks/base/core/res/res/layout/preference_holo.xml?av=f">preference_holo.xml</a>のどちらかが選ばれます。</p>
+<p>ただし、<strong><a href="http://developer.android.com/reference/android/preference/Preference.html#setLayoutResource(int)">Preference#setLayoutResource</a>が呼び出されていると、このリソースへの参照ごと書き換わります。</strong>つまり、前述の2ファイルはそのPreferenceには一切適用されないわけです。</p>
+<p>ただ、Preferenceを継承するなら必ずXMLのソースは一読しておくべきです。例えば、Preference#setLayoutResourceを使用しつつ、Preferenceに設定されたtitleやsummary、iconなどを自動で設定してもらいたい場合は、それぞれidとして</p>
+<ul>
+<li>android:id/title</li>
+<li>android:id/summary</li>
+<li>android:id/icon</li>
+</ul>
+<p>を指定しておけばよい、と言うことがわかります。ListActivityにおけるandroid:id/listと同じ要領です。</p>
+<p>また、<a href="http://developer.android.com/reference/android/preference/Preference.html#setWidgetLayoutResource(int)">Preference#setWidgetLayoutResource</a>を呼び出すとtitleやsummaryが入っているRelativeLayoutの下のLinearLayoutに突っ込まれる、と言うこともわかります。これを頭にいれておくと無駄なコードを書かなくて済むようになる…かもしれません。</p>
+
+<p>じゃあこのデフォルトレイアウトはPreferenceのどこで生成されるのかと言うと、<a href="http://developer.android.com/reference/android/preference/Preference.html#onCreateView(android.view.ViewGroup)">Preference#onCreateView</a>です。<a href="http://grepcode.com/file/repository.grepcode.com/java/ext/com.google.android/android/2.2.1_r1/android/preference/Preference.java">ソース</a>を確認してみましょう。</p>
+
+<pre class="brush:java">
+protected View onCreateView(ViewGroup parent) {
+    final LayoutInflater layoutInflater =
+        (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+    
+    final View layout = layoutInflater.inflate(mLayoutResId, parent, false); 
+    
+    if (mWidgetLayoutResId != 0) {
+        final ViewGroup widgetFrame = (ViewGroup)layout.findViewById(com.android.internal.R.id.widget_frame);
+        layoutInflater.inflate(mWidgetLayoutResId, widgetFrame);
+    }
+
+    return layout;
+}
+
+</pre>
+
+<p>このソースを見れば、Preference#setLayoutResourceを使用しつつPreference#setWidgetLayoutResourceも使用するにはandroid:id/widget_frameを持ったViewGroupがないといけない、と言うこともわかりますね。ライブラリとして公開するつもりがあるなら覚えておきたい事項です。</p>
+<p>また、onCreateViewをオーバーライドすれば気に入らないプロパティの一部を書き替えたり、動的に子ビューを追加することも不可能ではありません。ただ、将来的なアップデートで使えなくなる可能性がなきにしもあらずです。</p>
+<p>それじゃあ以上を踏まえて今回用のレイアウトファイルを作ってみましょう。widget_frameに挿入されることを前提とします。</p>
+
+<pre class="brush:xml">
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginLeft="15dip"
+    android:layout_marginRight="6dip"
+    android:layout_marginTop="6dip"
+    android:layout_marginBottom="6dip"
+    android:layout_weight="1"
+    android:orientation="horizontal">
+
+    <SeekBar
+        android:id="@+id/seekbar"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content" />
+    
+    <TextView
+        android:id="@+id/txvValue"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin_left="10dip" />
+    
+</LinearLayout>
+
+</pre>
+
+<p>setLayoutResource / setWidgetLayoutResourceを呼び出すタイミングは、こんな感じにしておけばいいんじゃないでしょうか。</p>
+
+<pre class="brush:java">
+@Override
+protected View onCreateView(ViewGroup parent) {
+    setWidgetLayoutResource(R.layout.seekbar_preference);
+    return super.onCreateView(parent);
+}
+
+</pre>
+
+<h3>自作Attributeと表示データのバインディング（onBindView）</h3>
+
+<p>実際にPreferenceに設定されている値を画面上に表示するのはonCreateViewではなく<a href="http://developer.android.com/reference/android/preference/Preference.html#onBindView(android.view.View)">onBindView</a>でやるべき、とドキュメントには書かれています。（<a href="http://ksoichiro.blogspot.jp/2011/05/android-preference.html">onCreateViewで値を設定するとこんなバグが発生する可能性がある。</a>）なので、onCreateViewではレイアウト構造の作成までにとどめておき、実際にSeekBarの初期値などを設定するのはonBindViewでやりましょう。</p>
+<p>ただ、そうした初期設定なんかを取得するには自作Attributeがあると便利です。この辺は割と頑張ってViewを自作したことがある人なら大体知っていると思いますし、調べるといっぱい出てくるので詳しい説明は割愛します。とりあえずは以下の三つの記事を読んでおけばOKです。</p>
+
+<ul>
+<li><a href="http://inon29.hateblo.jp/entry/2014/01/12/202213">【Android】独自Viewを作成する - It’s now or never</a></li>
+<li><a href="http://qiita.com/glayash/items/87ee9774f52abc7c37fc">AndroidのStyleとかThemeとかAttrとかStylableとか。 - Qiita</a></li>
+<li><a href="http://wada811.blogspot.com/2013/10/custom-view-circle-image-view-in-android.html">[Android]Custom View の作成と AttributeSet と declare-styleable | DevAchieve</a></li>
+</ul>
+<p>で、とりあえず欲しいのはSeekBarの最大値ぐらいです。後はPreferenceの方のattrから大体取れますしね。そんなわけでこんなものを適当に作っておきます。</p>
+
+<pre class="brush:xml">
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="SeekBarPreference">
+        <attr name="max" format="integer" />
+    </declare-styleable>
+</resources>
+</pre>
+
+<p>そろそろコンストラクタとか色々準備し始めましょう。ついでにonBindViewも記述します。</p>
+
+<pre class="brush:java; highlight:[27,55]">
+public class SeekBarPreference extends Preference implements OnSeekBarChangeListener {
+
+    @Accessors(prefix="_") @Getter @Setter private int _max;
+    @Accessors(prefix="_") @Getter @Setter private int _currentValue;
+    
+    public SeekBarPreference(Context context, int max) {
+        super(context);
+        _max = max;
+    }
+    
+    public SeekBarPreference(Context context, int max, int currentValue) {
+        super(context);
+        _max = max;
+        _currentValue = currentValue;
+    }
+
+    public SeekBarPreference(Context context, AttributeSet attrs) {
+        super(context, attrs);
+        init(context, attrs);
+    }
+
+    public SeekBarPreference(Context context, AttributeSet attrs, int defStyle) {
+        super(context, attrs, defStyle);
+        init(context, attrs);
+    }
+    
+    private void init(Context context, AttributeSet attrs) {
+        
+        // SeekBarPreference's attrs + default Preference's attrs
+        val attrIds = new int[R.styleable.SeekBarPreference.length + android.R.styleable.Preference]
+        System.arraycopy(R.styleable.SeekBarPreference, 0, attrIds, 0, R.styleable.SeekBarPreference.length);
+        System.arraycopy(android.R.styleable.Preference, 0, attrIds
+            , R.styleable.SeekBarPreference.length, android.R.styleable.Preference.length);
+        
+        @Cleanup("recycle") val t = context.obtainStyledAttributes(attrs, attrIds);
+        
+        // get max value
+        _max = t.getInt(R.styleable.VolumePreference_max, 0);
+        
+        // get default value
+        _currentValue = super.getPersistedInt(-1);
+        _currentValue = _currentValue != -1
+                            ? _currentValue
+                            : t.getInt(android.R.styleable.Preference_defaultValue, 0);
+        
+    }
+    
+    @Override
+    protected View onCreateView(ViewGroup parent) {
+        setWidgetLayoutResource(R.layout.seekbar_preference);
+        return super.onCreateView(parent);
+    }
+
+    @Override
+    protected void onBindView(View view) {
+        super.onBindView(view);
+        ((TextView) view.findViewById(R.id.txvValue)).setText(String.format("%d/%d", _currentValue, _max));
+
+        val seekBar = (SeekBar) view.findViewById(R.id.skbVolume);
+        seekBar.setMax(_max);
+        seekBar.setProgress(_currentValue);
+        seekBar.setOnSeekBarChangeListener(this);.
+    }
+    
+    @Override
+    public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+        //TODO: onProgressChanged
+    }
+
+    @Override
+    public void onStartTrackingTouch(SeekBar seekBar) {}
+
+    @Override
+    public void onStopTrackingTouch(SeekBar seekBar) {
+        //TODO: onStopTrackingTouch
+    }
+
+}
+
+</pre>
+
+<p>AttributeSetを受け取るコンストラクタではinitメソッドに飛ばしてしまいます。複数のXMLからattrをとりたい場合はR.styleableに自動生成されている<a href="http://himtodo.fc2web.com/java/joinArray.html">配列を合成</a>すると楽チンです。</p>
+<p>onBindViewは割と見たまんまなので割愛します。後はOnSeekBarChangeListenerのメソッドであるonProgressChangedとonStopTrackingTouchを実装してしまえばクリア…なんですが、一つ問題があります。<strong>onCreateView / onBindViewで使用するViewは後から取得できません。</strong><a href="http://developer.android.com/reference/android/preference/Preference.html#getView(android.view.View, android.view.ViewGroup)">getView</a>と言ういかにもなメソッドはあるんですが、こんな実装です。</p>
+
+<pre class="brush:java">
+public View getView(View convertView, ViewGroup parent) {
+    if (convertView == null) {
+        convertView = onCreateView(parent);
+    }
+    onBindView(convertView);
+    return convertView;
+}
+
+</pre>
+
+<p>これは<a href="http://grepcode.com/file/repo1.maven.org/maven2/org.robolectric/android-all/4.1.2_r1-robolectric-0/android/preference/PreferenceGroupAdapter.java/">PreferenceGroupAdapter</a>と言うSDK内部でのみ使うクラスから呼ばれているものであり、基本的に我々が呼び出すものではありません。多分。</p>
+<p>と言うわけで、動的に何かを変更する必要があるViewは事前に参照を保持しておかないといけません。今回で言えばSeekBarそのものと現在値/最大値を表示するTextViewですね。</p>
+
+<pre class="brush:java">
+private WeakReference<TextView> _txvValue;
+private WeakReference<SeekBar> _seekBar;
+
+@Override
+protected void onBindView(View view) {
+    super.onBindView(view);
+    
+    val txtValue = (TextView) view.findViewById(R.id.txvValue);
+    txtValue.setText(String.format("%d/%d", _currentValue, _max));
+    if(_txvValue != null) _txvValue.clear();
+    _txvValue = new WeakReference<TextView>(txtValue);
+
+    val seekBar = (SeekBar) view.findViewById(R.id.skbVolume);
+    seekBar.setMax(_max);
+    seekBar.setProgress(_currentValue);
+    seekBar.setOnSeekBarChangeListener(this);
+    if(_seekBar != null) _seekBar.clear();
+    _seekBar = new WeakReference<SeekBar>(seekBar);
+}
+
+public void setMax(int max) {
+    _max = max;
+    changeTextView();
+    
+    if(_seekBar == null) return;
+    
+    val seekBar = _seekBar.get();
+    if(seekBar != null) seekBar.setMax(max);
+}
+
+public void setCurrentValue(int currentValue) {
+    _currentValue = currentValue;
+    changeTextView();
+    
+    if(seekBar == null) return;
+    
+    val seekBar = _seekBar.get();
+    if(seekBar != null) seekBar.setProgress(currentValue);
+}
+
+private void changeTextView() {
+    if(txtView == null) return;
+    
+    val txtView = _txvValue.get();
+    if(txtView != null) txtView.setText(String.format("%d/%d", _currentValue, _max));
+}
+
+</pre>
+
+
+<h3>Preferenceに値をセットする</h3>
+
+<p>当然シークバーを動かしただけで勝手に保存してくれるわけではないので、自分で保存する動きを実装する必要があります。</p>
+<p>と言ってもそんなに難しくないです。<a href="http://developer.android.com/reference/android/preference/Preference.html#getEditor()">getEditorメソッド</a>を呼び出せば<a href="http://developer.android.com/reference/android/content/SharedPreferences.Editor.html">SharedPreferences.Editor</a>が手に入りますし、自分自身のKeyは<a href="http://developer.android.com/reference/android/preference/Preference.html#getKey()">getKey</a>を呼ぶだけです。今回は説明しませんでしたが、逆に自分自身の設定値を取得する場合はgetPersistedで始まるメソッドを使うと楽です。（initメソッドでさりげなく使っている。）</p>
+<p>ついでに、値を変更し終えたら<a href="http://developer.android.com/reference/android/preference/Preference.html#getOnPreferenceChangeListener()">getOnPreferenceChangeListener</a>を呼び出してあげると紳士的です。</p>
+
+<pre class="brush:java">
+@Override
+public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+    _currentValue = progress
+    changeTextView();
+}
+
+@Override
+public void onStartTrackingTouch(SeekBar seekBar) {}
+
+@Override
+public void onStopTrackingTouch(SeekBar seekBar) {
+    _currentValue = seekBar.getProgress();
+    
+    // save value
+    super.getEditor().putInt(super.getKey(), _currentValue).commit();
+    
+    val changedListener = super.getOnPreferenceChangeListener();
+    if(changedListener != null)
+        changedListener.onPreferenceChange(this, _currentValue);
+}
+
+</pre>
+
+<h3>まとめ</h3>
+
+<p>まぁ大体こんなところでしょうか。他のところは親クラスとしてのPreferenceがよきにはからってくれます。</p>
+<p>最後にすべてのコードをはって終わりにしましょう。珍しくちゃんとまとめっぽいですね。</p>
+
+<p>SeekBarPreference.java</p>
+<pre class="brush:java">
+public class SeekBarPreference extends Preference implements OnSeekBarChangeListener {
+
+    @Accessors(prefix="_") @Getter private int _max;
+    @Accessors(prefix="_") @Getter private int _currentValue;
+    
+    private WeakReference<TextView> _txvValue;
+    private WeakReference<SeekBar> _seekBar;
+
+    public SeekBarPreference(Context context, int max) {
+        super(context);
+        _max = max;
+    }
+    
+    public SeekBarPreference(Context context, int max, int currentValue) {
+        super(context);
+        _max = max;
+        _currentValue = currentValue;
+    }
+
+    public SeekBarPreference(Context context, AttributeSet attrs) {
+        super(context, attrs);
+        init(context, attrs);
+    }
+
+    public SeekBarPreference(Context context, AttributeSet attrs, int defStyle) {
+        super(context, attrs, defStyle);
+        init(context, attrs);
+    }
+    
+    private void init(Context context, AttributeSet attrs) {
+        
+        // SeekBarPreference's attrs + android Preference's attrs
+        val attrIds = new int[R.styleable.SeekBarPreference.length + android.R.styleable.Preference]
+        System.arraycopy(R.styleable.SeekBarPreference, 0, attrIds, 0, R.styleable.SeekBarPreference.length);
+        System.arraycopy(android.R.styleable.Preference, 0, attrIds
+            , R.styleable.SeekBarPreference.length, android.R.styleable.Preference.length);
+        
+        @Cleanup("recycle") val t = context.obtainStyledAttributes(attrs, attrIds);
+        
+        // get max value
+        _max = t.getInt(R.styleable.VolumePreference_max, 0);
+        
+        // get default value
+        _currentValue = super.getPersistedInt(-1);
+        _currentValue = _currentValue != -1
+                            ? _currentValue
+                            : t.getInt(android.R.styleable.Preference_defaultValue, 0);
+        
+    }
+    
+    @Override
+    protected View onCreateView(ViewGroup parent) {
+        setWidgetLayoutResource(R.layout.seekbar_preference);
+        return super.onCreateView(parent);
+    }
+
+    @Override
+    protected void onBindView(View view) {
+        super.onBindView(view);
+        
+        val txtValue = (TextView) view.findViewById(R.id.txvValue);
+        txtValue.setText(String.format("%d/%d", _currentValue, _max));
+        if(_txvValue != null) _txvValue.clear();
+        _txvValue = new WeakReference<TextView>(txtValue);
+
+        val seekBar = (SeekBar) view.findViewById(R.id.skbVolume);
+        seekBar.setMax(_max);
+        seekBar.setProgress(_currentValue);
+        seekBar.setOnSeekBarChangeListener(this);
+        if(_seekBar != null) _seekBar.clear();
+        _seekBar = new WeakReference<SeekBar>(seekBar);
+    }
+    
+    public void setMax(int max) {
+        _max = max;
+        changeTextView();
+        
+        if(_seekBar == null) return;
+        
+        val seekBar = _seekBar.get();
+        if(seekBar != null) seekBar.setMax(max);
+    }
+    
+    public void setCurrentValue(int currentValue) {
+        _currentValue = currentValue;
+        changeTextView();
+        
+        if(_seekBar == null) return;
+        
+        val seekBar = _seekBar.get();
+        if(seekBar != null) seekBar.setProgress(currentValue);
+    }
+    
+    private void changeTextView() {
+        if(_txvValue == null) return;
+        
+        val txtView = _txvValue.get();
+        if(txtView != null) txtView.setText(String.format("%d/%d", _currentValue, _max));
+    }
+    
+    @Override
+    public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+        _currentValue = progress
+        changeTextView();
+    }
+
+    @Override
+    public void onStartTrackingTouch(SeekBar seekBar) {}
+
+    @Override
+    public void onStopTrackingTouch(SeekBar seekBar) {
+        _currentValue = seekBar.getProgress();
+        
+        // save value
+        super.getEditor().putInt(super.getKey(), _currentValue).commit();
+        
+        val changedListener = super.getOnPreferenceChangeListener();
+        if(changedListener != null)
+            changedListener.onPreferenceChange(this, _currentValue);
+    }
+
+}
+
+</pre>
+
+<p>layout/seekbar_preference.xml</p>
+<pre class="brush:xml">
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginLeft="15dip"
+    android:layout_marginRight="6dip"
+    android:layout_marginTop="6dip"
+    android:layout_marginBottom="6dip"
+    android:layout_weight="1"
+    android:orientation="horizontal">
+
+    <SeekBar
+        android:id="@+id/seekbar"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content" />
+    
+    <TextView
+        android:id="@+id/txvValue"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin_left="10dip" />
+    
+</LinearLayout>
+</pre>
+
+<p>values/attr_seekbar_preference.xml</p>
+<pre class="brush:xml">
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="SeekBarPreference">
+        <attr name="max" format="integer" />
+    </declare-styleable>
+</resources>
+</pre>
+
+<h3>参考</h3>
+<ul>
+<li><a href="http://yuki312.blogspot.jp/2012/03/androidpreference.html">Yukiの枝折: Android:Preference項目のレイアウトファイル</a></li>
+<li><a href="http://ksoichiro.blogspot.jp/2011/05/android-preference.html">Android Preferenceの内容が他の項目に変わる | memorandum</a></li>
+<li><a href="http://inon29.hateblo.jp/entry/2014/01/12/202213">【Android】独自Viewを作成する - It’s now or never</a></li>
+<li><a href="http://qiita.com/glayash/items/87ee9774f52abc7c37fc">AndroidのStyleとかThemeとかAttrとかStylableとか。 - Qiita</a></li>
+<li><a href="http://wada811.blogspot.com/2013/10/custom-view-circle-image-view-in-android.html">[Android]Custom View の作成と AttributeSet と declare-styleable | DevAchieve</a></li>
+<li><a href="http://himtodo.fc2web.com/java/joinArray.html">複数配列の結合</a></li>
+</ul>
