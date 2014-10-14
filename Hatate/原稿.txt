@@ -1,359 +1,339 @@
-[Android]PreferenceActivityã§ä½¿ãˆã‚‹Preferenceã‚’è‡ªä½œã™ã‚‹
+[Android]ƒNƒŠƒbƒN‚ÉƒCƒxƒ“ƒg‚ğ”­¶‚³‚¹‚éListPreference‚ğì¬‚·‚é
 
-<h3>å‰æ›¸ã</h3>
-<p>ã¤ã„å…ˆæ—¥ã€ã‚€ã—ã‚ƒãã—ã‚ƒã—ã¦<a href="https://play.google.com/store/apps/details?id=inujini_.hatate">ã“ã®ã‚ˆã†ãªã‚¢ãƒ—ãƒª</a>ã‚’ä½œæˆã€å…¬é–‹ã—ã¾ã—ãŸã€‚</p>
-<p>ã“ã®ã‚¢ãƒ—ãƒªè‡ªä½“ã¯å†…è¼ªãƒã‚¿ã®æ¥µã¿ãªã®ã§æ­»ã¬ã»ã©ã©ã†ã§ã‚‚ã„ã„ã‚“ã§ã™ãŒã€è‰²ã€…ã¨å€‹äººçš„ã«åˆã‚ã¦ã®è©¦ã¿ãŒã‚ã‚Šã€ãã®è¾ºã®ãƒã‚¦ãƒã‚¦ã‚’ãƒ¡ãƒ¢ã—ã¦ã„ããŸã„ãªã¨ã€‚</p>
-<p>ã¨è¨€ã†ã‚ã‘ã§ã€ä»Šå›ã¯è‡ªåˆ†ã§<a href="http://developer.android.com/reference/android/preference/Preference.html">Preference</a>ã‚’ç¶™æ‰¿ã—ã€PreferenceActivityã‹ã‚‰å‘¼ã¹ã‚‹ã‚¯ãƒ©ã‚¹ã‚’ä½œæˆã—ã¦ã¿ã¾ã™ã€‚</p>
+<h3>‘O‘‚«</h3>
 
-<h3>ãƒ‡ãƒ•ã‚©ãƒ«ãƒˆã§ä½¿ç”¨ã§ãã‚‹Preference</h3>
-<p>androidã§ã¯SDKä¸Šã«<a href="http://developer.android.com/reference/android/preference/package-summary.html">ã„ãã¤ã‹ã®ä¾¿åˆ©ãªPreferenceãŒæ—¢ã«ç”¨æ„ã•ã‚Œã¦ã„ã¾ã™ã€‚</a>Preferenceã®Known Direct Subclassesã‹ã‚‰å¼•ã£å¼µã£ã¦ã¿ã‚‹ã¨ã€ã“ã‚“ãªæ„Ÿã˜ã§ã™ã­ã€‚</p>
+<p>‘Š•Ï‚í‚ç‚¸<a href="https://play.google.com/store/apps/details?id=inujini_.hatate">‚±‚Ì‚æ‚¤‚È‹ğ‚É‚à‚Â‚©‚È‚¢ƒNƒ\ƒAƒvƒŠ</a>‚ğì‚Á‚Ä‚¢‚Ü‚·B‚Ü‚ŸAŠy‚µ‚¢‚ñ‚Å‚·‚ªcB‚»‚ê‚È‚è‚É‚ÍB</p>
+<p>İŒvã<a href="http://developer.android.com/reference/android/preference/Preference.html">Preference</a>‚ğ‘½—p‚·‚é‚Ì‚ªˆê”ÔŠy‚¾‚Æ”»’f‚µ‚Ü‚µ‚½‚µA‚»‚ê‚Í‹°‚ç‚­ŠÔˆá‚Á‚Ä‚È‚¢‚ñ‚Å‚·‚ªAPreference‚»‚Ì‚à‚Ì‚ªAndroid SDK‚É‚¨‚¯‚éBad Part‚Ìˆê‚Â‚ÆŒ¾‚Á‚Ä‚à‰ßŒ¾‚Å‚Í‚È‚¢‚Ì‚ÅA‚¿‚å‚Á‚Æ‹C‚ğ—˜‚©‚¹‚½Preference‚ğ©ì‚µ‚æ‚¤‚Æ‚·‚é‚ÆŒ‹\–Ê“|‚Å‚·B</p>
+<p>‚ÆŒ¾‚¤‚©A–ˆ‰ñŒp³‚µ‚æ‚¤‚Æ‚·‚éƒNƒ‰ƒX‚Ìƒ\[ƒX‚ğ“Ç‚Ü‚È‚¢‚Æ“®ì‚ª—‰ğ‚Å‚«‚È‚¢‚Á‚ÄŒ¾‚¤‚Ì‚ÍƒtƒŒ[ƒ€ƒ[ƒN‚Æ‚µ‚Ä•’Ê‚É‘å¸”s‚¾‚Æv‚¤‚ñ‚Å‚·‚ªA‚Ç‚¤‚È‚ñ‚Å‚µ‚å‚¤B‚Ç‚¤‚È‚ñ‚Å‚µ‚å‚¤‚Á‚ÄŒ¾‚¤‚©A‚¢‚¢‰ÁŒ¸‚É‚µ‚Ä—~‚µ‚¢‚ñ‚Å‚·‚¯‚Ç‚ËB</p>
 
-<ul>
-<li><a href="http://developer.android.com/reference/android/preference/DialogPreference.html">DialogPreference</a></li>
-<li><a href="http://developer.android.com/reference/android/preference/RingtonePreference.html">RingtonePreference</a></li>
-<li><a href="http://developer.android.com/reference/android/preference/TwoStatePreference.html">TwoStatePreference</a></li>
-</ul>
+<h3>¡‰ñ‚Ì—vŒ</h3>
 
-<p>æ›´ã«ï¼ˆRingtonePreferenceã¯ã¡ã‚‡ã£ã¨é•ã†ã‘ã©ï¼‰ä¸Šè¨˜ã®Known Direct Subclassesã‚’ç¶™æ‰¿ã—ã¦ä½œã‚‰ã‚Œã¦ã„ã‚‹ã®ãŒä»¥ä¸‹ã®Preferenceã§ã™ã€‚</p>
-<ul>
-<li><a href="http://developer.android.com/reference/android/preference/CheckBoxPreference.html">CheckBoxPreference</a></li>
-<li><a href="http://developer.android.com/reference/android/preference/EditTextPreference.html">EditTextPreference</a></li>
-<li><a href="http://developer.android.com/reference/android/preference/ListPreference.html">ListPreference</a></li>
-<li><a href="http://developer.android.com/reference/android/preference/MultiSelectListPreference.html">MultiSelectListPreference</a></li>
-<li><a href="http://developer.android.com/reference/android/preference/SwitchPreference.html">SwitchPreference</a></li>
-</ul>
-
-<p>é€†ã«è¨€ãˆã°ã€ä¸Šè¨˜ã®ä¸­ã§æ¬²ã—ã„æ©Ÿèƒ½ãŒãªã‘ã‚Œã°è‡ªåˆ†ã§å®Ÿè£…ã™ã‚‹ã—ã‹ã‚ã‚Šã¾ã›ã‚“ã€‚ãŸã ã—ã€è¦‹ãŸç›®ä¸Šã®å•é¡Œã ã‘ã§ã‚ã‚Œã°ã€<a href="http://developer.android.com/reference/android/preference/Preference.html#setLayoutResource(int)">setLayoutResource</a>ã‚„<a href="http://developer.android.com/reference/android/preference/Preference.html#setWidgetLayoutResource(int)">setWidgetLayoutResource</a>ã§ã‚ã‚‹ç¨‹åº¦å·®ã—æ›¿ãˆã‚‹ã“ã¨ãŒå¯èƒ½ã§ã™ã€‚ï¼ˆé•ã„ã¯å¾Œè¿°ï¼‰</p>
-<p>ã§ã€ä»Šå›ã¯SeekBarã‚’æŒã£ãŸPreferenceã‚’ä½œæˆã—ã¦ã¿ãŸã„ã¨æ€ã„ã¾ã™ã€‚ã“ã‚Œãã‚‰ã„ãƒ‡ãƒ•ã‚©ãƒ«ãƒˆã§å®Ÿè£…ã—ã¦ãŠã„ã¦ã»ã—ã„ã‚‚ã®ã§ã™ã€‚</p>
-
-<h3>Preferenceã®ãƒ¬ã‚¤ã‚¢ã‚¦ãƒˆ</h3>
-
-<p>ãã‚‚ãã‚‚Preferenceã‚’ç¶™æ‰¿ã—ã¦ä½•ã‹ã‚’ä½œã‚‹ã¨ãã€ã¾ãšæœ€åˆã«ã©ã‚Œã‹ã‚‰ä½œã£ã¦ã„ã‘ã°ã„ã„ã®ã‹ã€ã¨è¨€ã†ã®ã¯ã€ä¸­ã€…é›£ã—ã„å•é¡Œã§ã™ã€‚ãŸã ã€ä»–ã®Preferenceã¨åˆã‚ã›ãŸæ™‚ã«é•å’Œæ„Ÿã®ã‚ã‚‹ãƒ¬ã‚¤ã‚¢ã‚¦ãƒˆã ã¨å›°ã‚Šã¾ã™ã€‚ã¨è¨€ã†ã‚ã‘ã§ã€ãƒ¬ã‚¤ã‚¢ã‚¦ãƒˆé–¢é€£ã‹ã‚‰è€ƒãˆã¦ã„ãã¾ã—ã‚‡ã†ã€‚</p>
-<p>Preferenceã®ãƒ‡ãƒ•ã‚©ãƒ«ãƒˆãƒ¬ã‚¤ã‚¢ã‚¦ãƒˆã«ã¤ã„ã¦ã¯<a href="http://yuki312.blogspot.jp/2012/03/androidpreference.html">ã“ã®è¨˜äº‹</a>ãŒéå¸¸ã«ã‚ˆãã¾ã¨ã¾ã£ã¦ã„ã¾ã™ã€‚ãã—ã¦çµå±€ã®ã¨ã“ã‚ã€<a href="http://grepcode.com/file/repository.grepcode.com/java/ext/com.google.android/android/4.0.3_r1/frameworks/base/core/res/res/layout/preference.xml?av=f">preference.xml</a>ã‹<a href="http://grepcode.com/file/repository.grepcode.com/java/ext/com.google.android/android/4.0.3_r1/frameworks/base/core/res/res/layout/preference_holo.xml?av=f">preference_holo.xml</a>ã®ã©ã¡ã‚‰ã‹ãŒé¸ã°ã‚Œã¾ã™ã€‚</p>
-<p>ãŸã ã—ã€<strong><a href="http://developer.android.com/reference/android/preference/Preference.html#setLayoutResource(int)">setLayoutResource</a>ãŒå‘¼ã³å‡ºã•ã‚Œã¦ã„ã‚‹ã¨ã€ã“ã®ãƒªã‚½ãƒ¼ã‚¹ã¸ã®å‚ç…§ã”ã¨æ›¸ãæ›ã‚ã‚Šã¾ã™ã€‚</strong>ã¤ã¾ã‚Šã€å‰è¿°ã®2ãƒ•ã‚¡ã‚¤ãƒ«ã¯ãã®Preferenceã«ã¯ä¸€åˆ‡é©ç”¨ã•ã‚Œãªã„ã‚ã‘ã§ã™ã€‚</p>
-<p>ãŸã ã€Preferenceã‚’ç¶™æ‰¿ã™ã‚‹ãªã‚‰å¿…ãšXMLã®ã‚½ãƒ¼ã‚¹ã¯ä¸€èª­ã—ã¦ãŠãã¹ãã§ã™ã€‚ä¾‹ãˆã°ã€setLayoutResourceã‚’ä½¿ç”¨ã—ã¤ã¤ã€Preferenceã«è¨­å®šã•ã‚ŒãŸtitleã‚„summaryã€iconãªã©ã‚’è‡ªå‹•ã§è¨­å®šã—ã¦ã‚‚ã‚‰ã„ãŸã„å ´åˆã¯ã€ãã‚Œãã‚Œidã¨ã—ã¦</p>
-<ul>
-<li>android:id/title</li>
-<li>android:id/summary</li>
-<li>android:id/icon</li>
-</ul>
-<p>ã‚’æŒ‡å®šã—ã¦ãŠã‘ã°ã‚ˆã„ã€ã¨è¨€ã†ã“ã¨ãŒã‚ã‹ã‚Šã¾ã™ã€‚ListActivityã«ãŠã‘ã‚‹android:id/listã¨åŒã˜è¦é ˜ã§ã™ã€‚</p>
-<p>ã¾ãŸã€<a href="http://developer.android.com/reference/android/preference/Preference.html#setWidgetLayoutResource(int)">setWidgetLayoutResource</a>ã‚’å‘¼ã³å‡ºã™ã¨titleã‚„summaryãŒå…¥ã£ã¦ã„ã‚‹RelativeLayoutã®ä¸‹ã®LinearLayoutã«çªã£è¾¼ã¾ã‚Œã‚‹ã€ã¨è¨€ã†ã“ã¨ã‚‚ã‚ã‹ã‚Šã¾ã™ã€‚ã“ã‚Œã‚’é ­ã«ã„ã‚Œã¦ãŠãã¨ç„¡é§„ãªã‚³ãƒ¼ãƒ‰ã‚’æ›¸ã‹ãªãã¦æ¸ˆã‚€ã‚ˆã†ã«ãªã‚‹â€¦ã‹ã‚‚ã—ã‚Œã¾ã›ã‚“ã€‚</p>
-
-<p>ã˜ã‚ƒã‚ã“ã®ãƒ‡ãƒ•ã‚©ãƒ«ãƒˆãƒ¬ã‚¤ã‚¢ã‚¦ãƒˆã¯Preferenceã®ã©ã“ã§ç”Ÿæˆã•ã‚Œã‚‹ã®ã‹ã¨è¨€ã†ã¨ã€<a href="http://developer.android.com/reference/android/preference/Preference.html#onCreateView(android.view.ViewGroup)">onCreateView</a>ã§ã™ã€‚<a href="http://grepcode.com/file/repository.grepcode.com/java/ext/com.google.android/android/2.2.1_r1/android/preference/Preference.java">ã‚½ãƒ¼ã‚¹</a>ã‚’ç¢ºèªã—ã¦ã¿ã¾ã—ã‚‡ã†ã€‚</p>
+<p><a href="http://developer.android.com/reference/android/app/Notification.html">Notification</a>‚ÌƒvƒƒpƒeƒB‚Æ‚µ‚Ä<a href="http://developer.android.com/reference/android/app/Notification.html#vibrate">vibrate</a>‚ÆŒ¾‚¤‚à‚Ì‚ª‚ ‚è‚Ü‚·B“Ç‚ñ‚Åš‚Ì”@‚­A’Ê’m‚·‚éÛ‚É’[––‚ğU“®‚³‚¹‚Ä‚­‚ê‚Ü‚·B‚»‚µ‚ÄŒ^‚ğŒ©‚Ä‚à‚ç‚¦‚Î‚í‚©‚é’Ê‚èlong‚Ì”z—ñ‚ğ“n‚·•K—v‚ª‚ ‚è‚Ü‚·B</p>
+<p>‹ï‘Ì“I‚É‚Ç‚¤‚â‚Á‚Äw’è‚·‚é‚©‚ÆŒ¾‚¤‚ÆAoff,on,off,on...‚ÌüŠú‚ğƒ~ƒŠ•b‚Ì”z—ñ‚Æ‚µ‚Ä“n‚µ‚Ä‚â‚ê‚ÎOK‚Å‚·Bsee also‚Æ‚µ‚Ä‹“‚°‚ç‚ê‚Ä‚¢‚é<a href="http://developer.android.com/reference/android/os/Vibrator.html#vibrate(long[], int)">Vibrator#vibrate</a>‚É‚»‚ñ‚Èà–¾‚ª‘‚¢‚Ä‚ ‚è‚Ü‚·B</p>
 
 <pre class="brush:java">
-protected View onCreateView(ViewGroup parent) {
-    final LayoutInflater layoutInflater =
-        (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-
-    final View layout = layoutInflater.inflate(mLayoutResId, parent, false); 
-
-    if (mWidgetLayoutResId != 0) {
-        final ViewGroup widgetFrame = (ViewGroup)layout.findViewById(com.android.internal.R.id.widget_frame);
-        layoutInflater.inflate(mWidgetLayoutResId, widgetFrame);
-    }
-
-    return layout;
-}
-
+Notification n = new Notification();
+n.vibrate = new long[]{ 0, 1000, 500, 1000};
+// NotificationManager‚©‚çNotification‚ğ”­s‚·‚é‚Æ‚±‚ë‚ÍÈ—ª
 </pre>
 
-<p>ã“ã®ã‚½ãƒ¼ã‚¹ã‚’è¦‹ã‚Œã°ã€setLayoutResourceã‚’ä½¿ç”¨ã—ã¤ã¤setWidgetLayoutResourceã‚‚ä½¿ç”¨ã™ã‚‹ã«ã¯android:id/widget_frameã‚’æŒã£ãŸViewGroupãŒãªã„ã¨ã„ã‘ãªã„ã€ã¨è¨€ã†ã“ã¨ã‚‚ã‚ã‹ã‚Šã¾ã™ã­ã€‚ãƒ©ã‚¤ãƒ–ãƒ©ãƒªã¨ã—ã¦å…¬é–‹ã™ã‚‹ã¤ã‚‚ã‚ŠãŒã‚ã‚‹ãªã‚‰è¦šãˆã¦ãŠããŸã„äº‹é …ã§ã™ã€‚</p>
-<p>ã¾ãŸã€onCreateViewã‚’ã‚ªãƒ¼ãƒãƒ¼ãƒ©ã‚¤ãƒ‰ã™ã‚Œã°æ°—ã«å…¥ã‚‰ãªã„ãƒ—ãƒ­ãƒ‘ãƒ†ã‚£ã®ä¸€éƒ¨ã‚’æ›¸ãæ›¿ãˆãŸã‚Šã€å‹•çš„ã«å­ãƒ“ãƒ¥ãƒ¼ã‚’è¿½åŠ ã™ã‚‹ã“ã¨ã‚‚ä¸å¯èƒ½ã§ã¯ã‚ã‚Šã¾ã›ã‚“ã€‚ãŸã ã€å°†æ¥çš„ãªã‚¢ãƒƒãƒ—ãƒ‡ãƒ¼ãƒˆã§ä½¿ãˆãªããªã‚‹å¯èƒ½æ€§ãŒãªãã«ã—ã‚‚ã‚ã‚‰ãšã§ã™ã€‚</p>
-<p>ãã‚Œã˜ã‚ƒã‚ä»¥ä¸Šã‚’è¸ã¾ãˆã¦ä»Šå›ç”¨ã®ãƒ¬ã‚¤ã‚¢ã‚¦ãƒˆãƒ•ã‚¡ã‚¤ãƒ«ã‚’ä½œã£ã¦ã¿ã¾ã—ã‚‡ã†ã€‚widget_frameã«æŒ¿å…¥ã•ã‚Œã‚‹ã“ã¨ã‚’å‰æã¨ã—ã¾ã™ã€‚</p>
+<p>‚±‚ÌƒoƒCƒu‚Ìƒpƒ^[ƒ“‚ğListPreference‚Åƒ†[ƒU‚Éİ’è‚³‚¹‚½‚¢A‚ÆŒ¾‚¤‚Ì‚ª¡‰ñ‚Ìï|‚Å‚·B</p>
 
-<pre class="brush:xml">
-<?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="fill_parent"
-    android:layout_height="wrap_content"
-    android:layout_marginLeft="15dip"
-    android:layout_marginRight="6dip"
-    android:layout_marginTop="6dip"
-    android:layout_marginBottom="6dip"
-    android:layout_weight="1"
-    android:orientation="horizontal">
+<h3>ListPreference‚Ìg‚¢•û</h3>
 
-    <SeekBar
-        android:id="@+id/seekbar"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content" />
+<p>‚Ü‚Ÿ‚±‚ê‚®‚ç‚¢‚È‚ç•’Ê‚ÌListPreference‚Å‚àİ’è‚Å‚«‚é‚ñ‚Å‚·‚¯‚Ç‚ËB‚Æ‚è‚ ‚¦‚¸<a href="http://developer.android.com/reference/android/preference/ListPreference.html">ƒhƒLƒ…ƒƒ“ƒg</a>‚ğ“Ç‚ñ‚Å‚İ‚Ü‚µ‚å‚¤B</p>
+<p>ListPreference“Æ©‚ÌAttr‚Æ‚µ‚Ä<a href="http://developer.android.com/reference/android/preference/ListPreference.html#attr_android:entries">android:entries</a>‚Æ<a href="http://developer.android.com/reference/android/preference/ListPreference.html#attr_android:entryValues">android:entryValues</a>‚ª‚ ‚è‚Ü‚·B‚±‚ê‚Í‚Ç‚¿‚ç‚à<a href="http://developer.android.com/guide/topics/resources/string-resource.html#StringArray">StringArray</a>‚ÌƒŠƒ\[ƒXID‚ğw’è‚·‚é•K—v‚ª‚ ‚è‚Ü‚·Bi<strong>StringArrayˆÈŠO‚Ìarray‚Í“n‚·‚±‚Æ‚ª‚Å‚«‚È‚¢‚Ì‚Å’ˆÓ</strong>j</p>
+<p>À—á‚ª‚È‚¢‚Æ‚í‚©‚è‚É‚­‚¢‚Æv‚¤‚Ì‚Å‘¼‚Ì•”•ª‚Åg‚Á‚Ä‚¢‚é‚à‚Ì‚ğĞ‰î‚µ‚Ä‚¨‚«‚Ü‚µ‚å‚¤BLED‚ÌF‚ğListPreference‚Åİ’è‚³‚¹‚Ä‚¢‚Ü‚·B</p>
 
-    <TextView
-        android:id="@+id/txvValue"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_margin_left="10dip" />
-
-</LinearLayout>
-</pre>
-
-<p>setLayoutResource / setWidgetLayoutResourceã‚’å‘¼ã³å‡ºã™ã‚¿ã‚¤ãƒŸãƒ³ã‚°ã¯ã€ã“ã‚“ãªæ„Ÿã˜ã«ã—ã¦ãŠã‘ã°ã„ã„ã‚“ã˜ã‚ƒãªã„ã§ã—ã‚‡ã†ã‹ã€‚</p>
-
-<pre class="brush:java">
-@Override
-protected View onCreateView(ViewGroup parent) {
-    setWidgetLayoutResource(R.layout.seekbar_preference);
-    return super.onCreateView(parent);
-}
-</pre>
-
-<h3>è‡ªä½œAttributeã¨è¡¨ç¤ºãƒ‡ãƒ¼ã‚¿ã®ãƒã‚¤ãƒ³ãƒ‡ã‚£ãƒ³ã‚°ï¼ˆonBindViewï¼‰</h3>
-
-<p>å®Ÿéš›ã«Preferenceã«è¨­å®šã•ã‚Œã¦ã„ã‚‹å€¤ã‚’ç”»é¢ä¸Šã«è¡¨ç¤ºã™ã‚‹ã®ã¯onCreateViewã§ã¯ãªã<a href="http://developer.android.com/reference/android/preference/Preference.html#onBindView(android.view.View)">onBindView</a>ã§ã‚„ã‚‹ã¹ãã€ã¨ãƒ‰ã‚­ãƒ¥ãƒ¡ãƒ³ãƒˆã«ã¯æ›¸ã‹ã‚Œã¦ã„ã¾ã™ã€‚ï¼ˆ<a href="http://ksoichiro.blogspot.jp/2011/05/android-preference.html">onCreateViewã§å€¤ã‚’è¨­å®šã™ã‚‹ã¨ã“ã‚“ãªãƒã‚°ãŒç™ºç”Ÿã™ã‚‹å¯èƒ½æ€§ãŒã‚ã‚‹ã€‚</a>ï¼‰ãªã®ã§ã€onCreateViewã§ã¯ãƒ¬ã‚¤ã‚¢ã‚¦ãƒˆæ§‹é€ ã®ä½œæˆã¾ã§ã«ã¨ã©ã‚ã¦ãŠãã€å®Ÿéš›ã«SeekBarã®åˆæœŸå€¤ãªã©ã‚’è¨­å®šã™ã‚‹ã®ã¯onBindViewã§ã‚„ã‚Šã¾ã—ã‚‡ã†ã€‚</p>
-<p>ãŸã ã€ãã†ã—ãŸåˆæœŸè¨­å®šãªã‚“ã‹ã‚’å–å¾—ã™ã‚‹ã«ã¯è‡ªä½œAttributeãŒã‚ã‚‹ã¨ä¾¿åˆ©ã§ã™ã€‚ã“ã®è¾ºã¯å‰²ã¨é ‘å¼µã£ã¦Viewã‚’è‡ªä½œã—ãŸã“ã¨ãŒã‚ã‚‹äººãªã‚‰å¤§ä½“çŸ¥ã£ã¦ã„ã‚‹ã¨æ€ã„ã¾ã™ã—ã€èª¿ã¹ã‚‹ã¨ã„ã£ã±ã„å‡ºã¦ãã‚‹ã®ã§è©³ã—ã„èª¬æ˜ã¯å‰²æ„›ã—ã¾ã™ã€‚ã¨ã‚Šã‚ãˆãšã¯ä»¥ä¸‹ã®ä¸‰ã¤ã®è¨˜äº‹ã‚’èª­ã‚“ã§ãŠã‘ã°OKã§ã™ã€‚</p>
-
-<ul>
-<li><a href="http://inon29.hateblo.jp/entry/2014/01/12/202213">ã€Androidã€‘ç‹¬è‡ªViewã‚’ä½œæˆã™ã‚‹ - Itâ€™s now or never</a></li>
-<li><a href="http://qiita.com/glayash/items/87ee9774f52abc7c37fc">Androidã®Styleã¨ã‹Themeã¨ã‹Attrã¨ã‹Stylableã¨ã‹ã€‚ - Qiita</a></li>
-<li><a href="http://wada811.blogspot.com/2013/10/custom-view-circle-image-view-in-android.html">[Android]Custom View ã®ä½œæˆã¨ AttributeSet ã¨ declare-styleable | DevAchieve</a></li>
-</ul>
-<p>ã§ã€ã¨ã‚Šã‚ãˆãšæ¬²ã—ã„ã®ã¯SeekBarã®æœ€å¤§å€¤ãã‚‰ã„ã§ã™ã€‚å¾Œã¯Preferenceã®æ–¹ã®attrã‹ã‚‰å¤§ä½“å–ã‚Œã¾ã™ã—ã­ã€‚ãã‚“ãªã‚ã‘ã§ã“ã‚“ãªã‚‚ã®ã‚’é©å½“ã«ä½œã£ã¦ãŠãã¾ã™ã€‚</p>
-
-<pre class="brush:xml">
+<p>arrays.xml</p>
+<pre class="brush:xml;highlight:[3,8]">
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <declare-styleable name="SeekBarPreference">
-        <attr name="max" format="integer" />
-    </declare-styleable>
+    <string-array name="LightColorList">
+        <item>Ô</item>
+        <item>Â</item>
+        <item>—Î</item>
+    </string-array>
+    <string-array name="LightColorValues">
+        <item>0xffff0000</item>
+        <item>0xff0000ff</item>
+        <item>0xff00ff00</item>
+    </string-array>
 </resources>
 </pre>
 
-<p>ãã‚ãã‚ã‚³ãƒ³ã‚¹ãƒˆãƒ©ã‚¯ã‚¿ã¨ã‹è‰²ã€…æº–å‚™ã—å§‹ã‚ã¾ã—ã‚‡ã†ã€‚ã¤ã„ã§ã«onBindViewã‚‚è¨˜è¿°ã—ã¾ã™ã€‚</p>
+<p>main.xmli”²ˆj</p>
+<pre class="brush:xml;highlight:[4,5]">
+<ListPreference
+    android:title="Œõ‚ÌF"
+    android:summary="@string/summary_light"
+    android:entries="@array/LightColorList"
+    android:entryValues="@array/LightColorValues"
+    android:key="lightColor"
+    android:dependency="isLight"/>
+</pre>
 
-<pre class="brush:java; highlight:[27,55]">
-public class SeekBarPreference extends Preference implements OnSeekBarChangeListener {
+<p>‚±‚Ì‚æ‚¤‚Éİ’è‚·‚é‚Æ‰æ–Êã‚ÍÔAÂA—Î‚ÌƒŠƒXƒg(LightColorList = android:entries)‚ª•\¦‚³‚ê‚Ü‚·‚ªAÀÛ‚Éİ’è‚³‚ê‚Ä‚¢‚é’l‚Í‚»‚ê‚É‘Î‰‚·‚éƒJƒ‰[ƒR[ƒh(LightColorValues = android:entryValues)‚É‚È‚Á‚Ä‚¢‚éA‚ÆŒ¾‚Á‚½ˆÂ”z‚Å‚·B</p>
+<p>ÀÛ‚É’l‚ğæ“¾‚·‚é‚Í‚±‚ñ‚ÈŠ´‚¶‚É‚È‚è‚Ü‚·B</p>
+<pre class="brush:java">
+public static long getLightColor(Context context) {
+    SharedPreference pref = PreferenceManager.getDefaultSharedPreferences(context);
+    return Long.decode(pref.getString("lightColor", "0xffff0000"));
+}
+</pre>
 
-    @Accessors(prefix="_") @Getter @Setter private int _max;
-    @Accessors(prefix="_") @Getter @Setter private int _currentValue;
+<h3>ListPreference‚Ìƒ_ƒ‚È‚Æ‚±‚ë</h3>
 
-    public SeekBarPreference(Context context, int max) {
-        super(context);
-        _max = max;
+<p>¡‰ñ‚Ì—vŒ‚©‚çŒ¾‚¦‚Îƒ_ƒ‚È‚Æ‚±‚ë‚ª“ñ‚Â‚ ‚è‚Ü‚·B</p>
+<ol>
+<li>entryValues‚ÌŒ^‚ªStringArray‚ÅŒÅ’è‚³‚ê‚Ä‚¢‚é</li>
+<li>ƒŠƒXƒg‚©‚ç‘I‘ğ‚·‚é‚Æ‘¦ƒ_ƒCƒAƒƒO‚ª•Â‚¶‚Ä‚µ‚Ü‚¤</li>
+</ol>
+
+<p>“Á‚É‘OÒ‚Ì•û‚Íˆø‚Á‚©‚©‚Á‚½‚±‚Æ‚ª‚ ‚él‚à‘½‚¢‚ñ‚¶‚á‚È‚¢‚Å‚µ‚å‚¤‚©H<a href="http://developer.android.com/guide/topics/resources/more-resources.html#IntegerArray">IntegerArray</a>‚â<a href="http://developer.android.com/guide/topics/resources/more-resources.html#TypedArray">TypedArray</a>‚¾‚Á‚Äó‚¯æ‚ê‚»‚¤‚È‚à‚Ì‚È‚Ì‚ÉA‚ÆŒ¾‚¢‚½‚¢‚Æ‚±‚ë‚È‚ñ‚Å‚·‚ªA‚¿‚á‚ñ‚Æl‚¦‚Ä‚İ‚é‚ÆŒ‹\“ï‚µ‚¢‚ñ‚Å‚·‚æ‚±‚ê‚ªB</p>
+<p>‚È‚ñ‚Å‚±‚¤‚È‚Á‚Ä‚¢‚é‚Ì‚©‚ğ’m‚é‚É‚Í<a href="http://grepcode.com/file/repository.grepcode.com/java/ext/com.google.android/android/2.0_r1/android/preference/ListPreference.java">ListPreference‚Ìƒ\[ƒX</a>‚©‚çƒRƒ“ƒXƒgƒ‰ƒNƒ^‚ğŒ©‚Ä‚İ‚é‚Ì‚ªˆê”Ô‘‚¢‚Å‚µ‚å‚¤B</p>
+
+<pre class="brush:java;highlight:[5,6]">
+private CharSequence[] mEntries;
+private CharSequence[] mEntryValues;
+
+public ListPreference(Context context, AttributeSet attrs) {
+    super(context, attrs);
+    
+    TypedArray a = context.obtainStyledAttributes(attrs,
+            com.android.internal.R.styleable.ListPreference, 0, 0);
+    mEntries = a.getTextArray(com.android.internal.R.styleable.ListPreference_entries);
+    mEntryValues = a.getTextArray(com.android.internal.R.styleable.ListPreference_entryValues);
+    a.recycle();
+}
+</pre>
+
+<p>‚Æ‚Ü‚ŸA‚±‚±‚ÅŒ^‚ğŒˆ‚ß‘Å‚¿‚µ‚Ä‚µ‚Ü‚Á‚Ä‚¢‚Ü‚·B‚±‚ê‚ğ‘Îˆ‚·‚é‚Æ‚È‚é‚Æ‰½‚ç‚©‚ÌŒ^î•ñ‚ğattrs‚Å“n‚·‚µ‚©‚È‚³‚»‚¤‚Å‚·‚µAmEntries / mEntryValues‚ÌŒ^‚ÍObject[]‚É‚µ‚È‚¢‚Æ‚¢‚¯‚Ü‚¹‚ñBi<a href="http://www.ne.jp/asahi/hishidama/home/tech/java/array.html#h2_covariant">Java‚Ì”z—ñ‚Í‹¤•Ï</a>‚Å‚ ‚èAObject[]‚ÉString[]‚àInteger[]‚à“Ë‚Á‚ß‚Ä‚µ‚Ü‚¤‚ªâ‘Î‚É‚â‚é‚×‚«‚Å‚Í‚È‚¢Bj</p>
+<p>‚¶‚á‚ ƒWƒFƒlƒŠƒNƒX‚É‚·‚ê‚ÎA‚Æv‚¤‚ñ‚Å‚·‚ªAc”O‚È‚ª‚çxml‚É‹Lq‚·‚éÛ‚ÉŒ^ƒpƒ‰ƒ[ƒ^‚ğw’è‚·‚é‚±‚Æ‚Ío—ˆ‚Ü‚¹‚ñ‚µAŒ‹‹Ç‰½‚©‚µ‚ç‚ÌŒ^î•ñ‚ğ“n‚³‚È‚¢‚ÆÅI“I‚ÉSharedPreference‚É•Û‘¶‚Å‚«‚È‚¢‚Å‚·B</p>
+<p>‚Ç‚¤‚·‚é‚É‚¹‚æŒ^‚Ì–â‘è‚ğ‚Ç‚¤‚É‚©‚µ‚æ‚¤‚Æ‚·‚é‚ÆListPreference‚ğˆê‚©‚çì‚è’¼‚³‚È‚­‚Ä‚Í‚È‚è‚Ü‚¹‚ñB‚»‚µ‚Äˆê‚©‚çì‚è’¼‚µ‚½‚É‚µ‚Ä‚Í‚ ‚Ü‚è‚É‚à‚¨‘e––‚È‚à‚Ì‚ªo—ˆã‚ª‚é‚±‚Æ‚ª–Ú‚ÉŒ©‚¦‚Ä‚¢‚Ü‚·B‚±‚±‚Í—Ü‚ğˆù‚ñ‚Å’ú‚ß‚Ü‚µ‚å‚¤B‚Ü‚ŸAString‚È‚ç‚Ç‚¤‚Æ‚Å‚à‚È‚è‚Ü‚·‚µ‚ËB</p>
+
+<p>ŒãÒ‚ğ’¼‚·‚Ì‚Í‚³‚Ù‚Ç“ï‚µ‚­‚È‚¢‚Å‚·B‚ÆŒ¾‚¤‚©A‘I‘ğ‚³‚ê‚½“_‚Åƒ_ƒCƒAƒƒO‚ğ•Â‚¶‚Ä‚µ‚Ü‚Á‚Ä‚à–â‘è‚ª‚È‚¢‚±‚Æ‚Ì•û‚ª‘½‚¢‚ñ‚Å‚·‚ªA‚¢‚¿‚¢‚¿ƒpƒ^[ƒ“‚ğ‘I‘ğ‚·‚é¨ƒvƒŒƒrƒ…[‚Å‚µ‚Ä‚İ‚é¨ƒpƒ^[ƒ“‚ğ‘I‚Ñ’¼‚·...‚ÆŒ¾‚¤ì‹Æ‚ğƒ†[ƒU‚É‚â‚ç‚¹‚é‚Ì‚Í‚¿‚å‚Á‚ÆƒN[ƒ‹‚¶‚á‚È‚¢‚Á‚Ä‚¾‚¯‚È‚Ì‚ÅA‚Ô‚Á‚¿‚á‚¯‘Îˆ‚µ‚È‚­‚Ä‚à‚¢‚¢ƒŒƒxƒ‹‚Å‚·B‚»‚ê‚¶‚á˜b‚É‚È‚ç‚È‚¢‚Ì‚Å‚¿‚á‚ñ‚Æ’¼‚µ‚Ü‚·‚¯‚Ç‚àB</p>
+
+<h3>ListPreference‚ÌÀ‘•‚ğ’²‚×‚é</h3>
+
+<p>‚ÆŒ¾‚¤‚í‚¯‚ÅA‚à‚¤ˆê“x<a href="http://grepcode.com/file/repository.grepcode.com/java/ext/com.google.android/android/2.0_r1/android/preference/ListPreference.java">ListPreference‚Ìƒ\[ƒX</a>‚É–ß‚Á‚Ä‚»‚Ì•Ó‚Ì§Œä‚ğ‚µ‚Ä‚¢‚é‚Æ‚±‚ë‚ğ’T‚µ‚Ä‚İ‚Ü‚·BListPrederence‚Í<a href="http://developer.android.com/reference/android/preference/DialogPreference.html">DialogPreference</a>‚ğŒp³‚µ‚Ä‚¢‚é‚Ì‚ÅA‹°‚ç‚­AlertDialog.Builder‚ÉListView‚©‰½‚©‚ğ“Ë‚Á‚ñ‚Å‚é‚Ì‚©‚È‚Æ‚ ‚½‚è‚ğ‚Â‚¯‚Ä‚¢‚­‚ÆA<a href="http://developer.android.com/reference/android/preference/DialogPreference.html#onPrepareDialogBuilder(android.app.AlertDialog.Builder)">onPrepareDialogBuilder</a>‚ÆŒ¾‚¤ƒƒ\ƒbƒh‚É‚Ô‚Â‚©‚è‚Ü‚·B</p>
+
+<pre class="brush:java">
+@Override
+protected void onPrepareDialogBuilder(Builder builder) {
+    super.onPrepareDialogBuilder(builder);
+    
+    if (mEntries == null || mEntryValues == null) {
+        throw new IllegalStateException(
+                "ListPreference requires an entries array and an entryValues array.");
     }
 
-    public SeekBarPreference(Context context, int max, int currentValue) {
+    mClickedDialogEntryIndex = getValueIndex();
+    builder.setSingleChoiceItems(mEntries, mClickedDialogEntryIndex, 
+            new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int which) {
+                    mClickedDialogEntryIndex = which;
+
+                    /*
+                     * Clicking on an item simulates the positive button
+                     * click, and dismisses the dialog.
+                     */
+                    ListPreference.this.onClick(dialog, DialogInterface.BUTTON_POSITIVE);
+                    dialog.dismiss();
+                }
+    });
+    
+    /*
+     * The typical interaction for list-based dialogs is to have
+     * click-on-an-item dismiss the dialog instead of the user having to
+     * press 'Ok'.
+     */
+    builder.setPositiveButton(null, null);
+}
+
+</pre>
+
+<p>ListView‚ÍŒ»‚ê‚Ü‚¹‚ñ‚Å‚µ‚½‚ª<a href="http://developer.android.com/reference/android/app/AlertDialog.Builder.html#setSingleChoiceItems(java.lang.CharSequence[], int, android.content.DialogInterface.OnClickListener)">AlertDialog.Builder#setSingleChoiceItems</a>‚ğg‚Á‚Ä§Œä‚µ‚Ä‚¢‚é‚æ‚¤‚Å‚·B‚±‚Ìƒƒ\ƒbƒh‚Å“n‚µ‚Ä‚¢‚éDialogInterface.OnClickListener‚Ì’†g‚ğŒ©‚Ä‚¢‚«‚Ü‚µ‚å‚¤B</p>
+
+<pre class="brush:java">
+new DialogInterface.OnClickListener() {
+    public void onClick(DialogInterface dialog, int which) {
+        mClickedDialogEntryIndex = which;
+
+        /*
+         * Clicking on an item simulates the positive button
+         * click, and dismisses the dialog.
+         */
+        ListPreference.this.onClick(dialog, DialogInterface.BUTTON_POSITIVE);
+        dialog.dismiss();
+    }
+}
+
+</pre>
+
+<p>mClickedDialogEntryIndex‚Í‘I‘ğ‚³‚ê‚½ƒŠƒXƒgƒAƒCƒeƒ€‚Ìindex‚Å‚·BÀÛ‚É’l‚ğ•Û‘¶‚·‚é‚Ég‚¢‚Ü‚·Bi‚ÆŒ¾‚¤‚©A‚»‚êˆÈŠO‚Åg‚í‚ê‚È‚¢j</p>
+<p>‚±‚±‚Ìdialog.dismiss‚¾‚¯Á‚¹‚ê‚Î‚È‚ŸA‚Æv‚¤‚ñ‚Å‚·‚ªA‚Ç‚¤‚µ‚æ‚¤‚à‚ ‚è‚Ü‚¹‚ñB</p>
+<p>‚³‚ÄADialogPreference‚Å•\¦‚³‚ê‚Ä‚¢‚édialog‚ªdismiss‚³‚ê‚é‚Æ<a href="http://developer.android.com/reference/android/preference/DialogPreference.html#onDialogClosed(boolean)">onDialogClosed</a>‚ÆŒ¾‚¤ƒƒ\ƒbƒh‚É”ò‚Ñ‚Ü‚·B‚í‚´‚í‚´<a href="http://developer.android.com/reference/android/preference/Preference.html#callChangeListener(java.lang.Object)">callChangeListener</a>‚ğŒÄ‚Ño‚µ‚Ä‚¢‚é‚±‚Æ‚©‚ç„‘ª‚·‚é‚ÉAListPreference‚Å‚Í‚±‚±‚Å’l‚ğ•Û‘¶‚µ‚Ä‚¢‚é‚æ‚¤‚Å‚·‚ËB</p>
+
+<pre class="brush:java">
+@Override
+protected void onDialogClosed(boolean positiveResult) {
+    super.onDialogClosed(positiveResult);
+    
+    if (positiveResult && mClickedDialogEntryIndex >= 0 && mEntryValues != null) {
+        String value = mEntryValues[mClickedDialogEntryIndex].toString();
+        if (callChangeListener(value)) {
+            setValue(value);
+        }
+    }
+}
+</pre>
+
+<p>‚±‚ÌpositiveResult‚Æ‚Í‰½‚¼‚âA‚Á‚ÄŒ¾‚¤‚Ì‚ÍA<a href="http://grepcode.com/file/repo1.maven.org/maven2/org.robolectric/android-all/4.3_r2-robolectric-0/android/preference/DialogPreference.java">DialogPreference‚Ìƒ\[ƒX</a>‚ğŒ©‚És‚­•K—v‚ª‚ ‚è‚Ü‚·B</p>
+
+<pre class="brush:java">
+public void onDismiss(DialogInterface dialog) {
+    
+    getPreferenceManager().unregisterOnActivityDestroyListener(this);
+    
+    mDialog = null;
+    onDialogClosed(mWhichButtonClicked == DialogInterface.BUTTON_POSITIVE);
+}
+
+/**
+ * Called when the dialog is dismissed and should be used to save data to
+ * the {@link SharedPreferences}.
+ * 
+ * @param positiveResult Whether the positive button was clicked (true), or
+ *            the negative button was clicked or the dialog was canceled (false).
+ */
+protected void onDialogClosed(boolean positiveResult) {
+}
+
+</pre>
+
+<p>ListPreference‚ªonPrepareDialogBuilder‚Å‚â‚Á‚Ä‚¢‚½“à—e‚ğv‚¢o‚µ‚Ü‚µ‚å‚¤BListPreference.this.onClick(dialog, DialogInterface.BUTTON_POSITIVE);‚Æbuilder.setPositiveButton(null, null);‚È‚ñ‚ÄƒR[ƒh‚ª‚ ‚è‚Ü‚µ‚½BƒŠƒXƒg‚ÌƒAƒCƒeƒ€‚ğ‘I‘ğ‚µ‚½uŠÔ‚ÉDialogPreference#mWhichButtonClicked‚ğDialogInterface.BUTTON_POSITIVE‚É‚µAdialog.dismiss‚·‚é‚±‚Æ‚Å‹­§“I‚ÉpositiveResult‚ğtrue‚É‚µ‚Ä‚¢‚é‚í‚¯‚Å‚·B‚¤[‚ñBƒAƒhƒzƒbƒNŠ´•Y‚Á‚Ä‚Ü‚·‚ËB</p>
+
+<h3>ListPreference‚ğŒp³‚µ‚Äì‚è’¼‚·</h3>
+<p>‚±‚ê‚ÅListPreference‚ª‰½‚ğ‚â‚Á‚Ä‚¢‚é‚Ì‚©‚È‚ñ‚Æ‚È‚­‚í‚©‚è‚Ü‚µ‚½BŸ‚Í‚±‚ê‚ğ‚Ç‚¤’¼‚µ‚Ä‚¢‚­‚©‚ğl‚¦‚Ü‚µ‚å‚¤B</p>
+<p>‹É’[‚È˜bAonPrepareDialogBuilder‚Åİ’è‚µ‚Ä‚¢‚éDialogInterface.OnClickListener‚ğ·‚µ‘Ö‚¦‚Ä‚µ‚Ü‚¤A‚ ‚é‚¢‚ÍA‰½‚ç‚©‚ÌŒ`‚ÅˆÏ÷‚Å‚«‚é‚æ‚¤‚É‚µ‚Ä‚µ‚Ü‚¦‚Î–Ú“I‚Í’B¬‚³‚ê‚é‚æ‚¤‚ÉŒ©‚¦‚Ü‚·B</p>
+<p>’Pƒ‚ÉDialogInterface.OnClickListener‚ğó‚¯æ‚ê‚é‚æ‚¤‚É‚·‚é‚È‚ç‚±‚ñ‚ÈŠ´‚¶‚Å‚·‚ËB‚½‚¾AonDialogClosed‚ÌpositiveResult‚ğtrue‚Å–á‚¦‚é‚æ‚¤‚É‚µ‚È‚«‚á‚¢‚¯‚È‚¢‚Ì‚ÅAPositiveButton‚Í‚¿‚á‚ñ‚Æì¬‚µ‚Ü‚·B</p>
+
+<pre class="brush:java">
+public class EventableListPreference extends ListPreference {
+
+    @Accessors(prefix="_") @Setter private DialogInterface.OnClickListener _onClickListener;
+
+    public EventableListPreference(Context context) {
         super(context);
-        _max = max;
-        _currentValue = currentValue;
     }
 
-    public SeekBarPreference(Context context, AttributeSet attrs) {
+    public EventableListPreference(Context context, AttributeSet attrs) {
         super(context, attrs);
-        init(context, attrs);
     }
 
-    public SeekBarPreference(Context context, AttributeSet attrs, int defStyle) {
+    public EventableListPreference(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
-        init(context, attrs);
-    }
-
-    private void init(Context context, AttributeSet attrs) {
-
-        // SeekBarPreference's attrs + default Preference's attrs
-        val attrIds = new int[R.styleable.SeekBarPreference.length + android.R.styleable.Preference]
-        System.arraycopy(R.styleable.SeekBarPreference, 0, attrIds, 0, R.styleable.SeekBarPreference.length);
-        System.arraycopy(android.R.styleable.Preference, 0, attrIds
-            , R.styleable.SeekBarPreference.length, android.R.styleable.Preference.length);
-
-        @Cleanup("recycle") val t = context.obtainStyledAttributes(attrs, attrIds);
-
-        // get max value
-        _max = t.getInt(R.styleable.VolumePreference_max, 0);
-
-        // get default value
-        _currentValue = super.getPersistedInt(-1);
-        _currentValue = _currentValue != -1
-                            ? _currentValue
-                            : t.getInt(android.R.styleable.Preference_defaultValue, 0);
     }
 
     @Override
-    protected View onCreateView(ViewGroup parent) {
-        setWidgetLayoutResource(R.layout.seekbar_preference);
-        return super.onCreateView(parent);
+    protected void onPrepareDialogBuilder(AlertDialog.Builder builder) {
+
+        val entries = super.getEntries();
+        val entryValues = super.getEntryValues();
+
+        if (entries == null || entryValues == null) {
+            throw new IllegalStateException(
+                    "EventableListPreference requires an entries array and an entryValues array.");
+        }
+
+        val entryIndex = super.findIndexOfValue(super.getValue());
+
+        builder.setSingleChoiceItems(entries, entryIndex, _onClickListener);
+
+        builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                // ‚¢‚é‚Ì‚©‚ÈcH
+                EventableListPreference.this.onClick(dialog, DialogInterface.BUTTON_POSITIVE);
+                dialog.dismiss();
+            }
+        });
     }
-
-    @Override
-    protected void onBindView(View view) {
-        super.onBindView(view);
-        ((TextView) view.findViewById(R.id.txvValue)).setText(String.format("%d/%d", _currentValue, _max));
-
-        val seekBar = (SeekBar) view.findViewById(R.id.skbVolume);
-        seekBar.setMax(_max);
-        seekBar.setProgress(_currentValue);
-        seekBar.setOnSeekBarChangeListener(this);.
-    }
-
-    @Override
-    public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-        //TODO: onProgressChanged
-    }
-
-    @Override
-    public void onStartTrackingTouch(SeekBar seekBar) {}
-
-    @Override
-    public void onStopTrackingTouch(SeekBar seekBar) {
-        //TODO: onStopTrackingTouch
-    }
-
 }
 
 </pre>
 
-<p>AttributeSetã‚’å—ã‘å–ã‚‹ã‚³ãƒ³ã‚¹ãƒˆãƒ©ã‚¯ã‚¿ã§ã¯initãƒ¡ã‚½ãƒƒãƒ‰ã«é£›ã°ã—ã¦ã—ã¾ã„ã¾ã™ã€‚è¤‡æ•°ã®XMLã‹ã‚‰attrã‚’ã¨ã‚ŠãŸã„å ´åˆã¯R.styleableã«è‡ªå‹•ç”Ÿæˆã•ã‚Œã¦ã„ã‚‹<a href="http://himtodo.fc2web.com/java/joinArray.html">é…åˆ—ã‚’åˆæˆ</a>ã™ã‚‹ã¨æ¥½ãƒãƒ³ã§ã™ã€‚</p>
-<p>onBindViewã¯å‰²ã¨è¦‹ãŸã¾ã‚“ã¾ãªã®ã§å‰²æ„›ã—ã¾ã™ã€‚å¾Œã¯OnSeekBarChangeListenerã®ãƒ¡ã‚½ãƒƒãƒ‰ã§ã‚ã‚‹onProgressChangedã¨onStopTrackingTouchã‚’å®Ÿè£…ã—ã¦ã—ã¾ãˆã°ã‚¯ãƒªã‚¢â€¦ãªã‚“ã§ã™ãŒã€ä¸€ã¤å•é¡ŒãŒã‚ã‚Šã¾ã™ã€‚<strong>onCreateView / onBindViewã§ä½¿ç”¨ã™ã‚‹Viewã¯å¾Œã‹ã‚‰å–å¾—ã§ãã¾ã›ã‚“ã€‚</strong><a href="http://developer.android.com/reference/android/preference/Preference.html#getView(android.view.View, android.view.ViewGroup)">getView</a>ã¨è¨€ã†ã„ã‹ã«ã‚‚ãªãƒ¡ã‚½ãƒƒãƒ‰ã¯ã‚ã‚‹ã‚“ã§ã™ãŒã€ã“ã‚“ãªå®Ÿè£…ã§ã™ã€‚</p>
+<p>‚Æ‚ÍŒ¾‚¦‚±‚Ì‚Ü‚Ü‚¾‚Æ“®‚«‚Ü‚¹‚ñBListPreference#mClickedDialogEntryIndex‚ª•Ï‚í‚ç‚È‚¢‚Ì‚ÅA‚Ç‚ê‚¾‚¯‘I‘ğ‚µ‚Ä‚àÅI“I‚É‚Í‚¸‚Á‚Æ“¯‚¶’l‚Å•Û‘¶‚³‚ê‚Ü‚·Bd•û‚È‚¢‚Ì‚Å“¯‚¶‚æ‚¤‚ÈƒvƒƒpƒeƒB‚ğ‚±‚Á‚¿‚Å‚àŠ‚µAonDialogClosed‚ğƒI[ƒo[ƒ‰ƒCƒh‚µ‚Ä‘S‚­“¯‚¶‚±‚Æ‚ğ‚·‚é‚æ‚¤‚É‚µ‚Ü‚·B</p>
+<p>‚Ü‚½ADialogInterface.OnClickListener‚ğó‚¯æ‚é‚æ‚¤‚É‚·‚é‚Æ‚â‚Á‚Ï‚èˆÓ–¡‚ª‚È‚¢‚Ì‚ÅA•Ê‚ÌƒR[ƒ‹ƒoƒbƒN—pƒCƒ“ƒ^[ƒtƒF[ƒX‚ğì¬‚µ‚Ü‚·B</p>
 
 <pre class="brush:java">
-public View getView(View convertView, ViewGroup parent) {
-    if (convertView == null) {
-        convertView = onCreateView(parent);
-    }
-    onBindView(convertView);
-    return convertView;
-}
+public class EventableListPreference extends ListPreference {
 
-</pre>
-
-<p>ã“ã‚Œã¯<a href="http://grepcode.com/file/repo1.maven.org/maven2/org.robolectric/android-all/4.1.2_r1-robolectric-0/android/preference/PreferenceGroupAdapter.java/">PreferenceGroupAdapter</a>(is BaseAdapter)ã¨è¨€ã†PreferenceActivity(is ListActivity)ãŒæŒã¤Adapterã‹ã‚‰å‘¼ã°ã‚Œã‚‹ã‚‚ã®ã§ã‚ã‚Šã€åŸºæœ¬çš„ã«æˆ‘ã€…ãŒå‘¼ã³å‡ºã™ã‚‚ã®ã§ã¯ã‚ã‚Šã¾ã›ã‚“ã€‚æ­£ç›´ã“ã‚Œã¯package privateã§ã‚‚ã‚ˆã‹ã£ãŸã‚“ã˜ã‚ƒãªã„ã‹ã£ã¦ãƒ¬ãƒ™ãƒ«ã®ãƒ¡ã‚½ãƒƒãƒ‰ã§ã™ã€‚</p>
-<p>æœ¬æ¥ã§ã‚ã‚Œã°ã€Preferenceã§è¡¨ç¤ºã•ã‚Œã¦ã„ã‚‹ãƒ‡ãƒ¼ã‚¿ãŒå¤‰æ›´ã•ã‚ŒãŸå ´åˆã¯<a href="http://developer.android.com/reference/android/preference/Preference.html#notifyChanged()">notifyChanged</a>ã‚’å‘¼ã¶ã®ãŒç­‹ã§ã™ã€‚ã“ã‚Œã‚’å‘¼ã³å‡ºã™ã¨ã“ã‚“ãªå½¢ã§ãƒ¡ã‚½ãƒƒãƒ‰ãŒé€£é–ã—ã¦ã„ãã¾ã™ã€‚</p>
-
-<pre class="brush:text">
-Preference#notifyChanged
-â†“
-PreferenceGroupAdapter#notifyDataSetChanged
-â†“
-PreferenceGroupAdapter#getView
-â†“
-Preference#getView
-â†“
-ï¼ˆPreference#onCreateViewï¼‰
-â†“
-Preference#onBindView
-</pre>
-
-<p>çµå±€ã®ã¨ã“ã‚onBindViewã‚’å‘¼ã³ç›´ã™ã“ã¨ã«ãªã‚‹ã®ã§ã€ã¡ã‚ƒã‚“ã¨å€¤ãŒå¤‰æ›´ã•ã‚ŒãŸã‚ˆã†ã«è¦‹ãˆã‚‹ã‚ã‘ã§ã™ã€‚ãã‚Œã¯ãã‚Œã§ã„ã„ã‚“ã§ã™ãŒã€ã€ŒSeekBarã®å€¤ã‚’ã¡ã‚‡ã£ã¨ã„ã˜ã‚‹åº¦ã«ä»Šè¡¨ç¤ºã•ã‚Œã¦ã„ã‚‹Viewï¼ˆPreferenceï¼‰ã‚’å†æ›´æ–°ã•ã›ã‚‹ã®ï¼Ÿã€ã¨è€ƒãˆã‚‹ã¨ã€æµçŸ³ã«ç„¡é§„ãŒå¤šã™ãã‚‹æ°—ãŒã—ã¾ã™ã€‚</p>
-<p>ã¨è¨€ã†ã‚ã‘ã§ã€onBindViewãŒå‘¼ã°ã‚ŒãŸã‚‰Viewã®å‚ç…§ã‚’å¼±å‚ç…§ã¨ã—ã¦ä¿æŒã—ã¦ãŠãã“ã¨ã«ã—ã¾ã™ã€‚æ›´ã«ã€findViewByIdã®è² æ‹…ã‚’æ¸›ã‚‰ã™ãŸã‚ã«ViewHolderã‚‚ç”¨æ„ã—ã¾ã™ã€‚</p>
-
-<pre class="brush:java">
-private WeakReference<TextView> _txvValue;
-private WeakReference<SeekBar> _seekBar;
-
-private static final class SeekBarPreferenceViewHolder {
-    public final TextView txtValue;
-    public final SeekBar seekBar;
-
-    public SeekBarPreferenceViewHolder(View view) {
-        txtValue = (TextView) view.findViewById(R.id.txvValue);
-        seekBar = (SeekBar) view.findViewById(R.id.skbVolume);
-    }
-}
-
-@Override
-protected void onBindView(View view) {
-    super.onBindView(view);
-
-    val tag = view.getTag();
-    SeekBarPreferenceViewHolder vh = null;
-
-    if(tag != null && tag instanceof SeekBarPreferenceViewHolder) {
-        vh = (SeekBarPreferenceViewHolder) tag;
-    } else {
-        vh = new SeekBarPreferenceViewHolder(view);
-        view.setTag(vh);
-        vh.seekBar.setOnSeekBarChangeListener(this);
+    public interface OnChosenListener {
+        public void onChosen(int index, String entry, String entryValue);
     }
 
-    vh.txtValue.setText(String.format("%d/%d", _currentValue, _max));
-    if(_txvValue != null) _txvValue.clear();
-    _txvValue = new WeakReference<TextView>(vh.txtValue);
+    private int _selectedEntryIndex;
+    @Accessors(prefix="_") @Setter private OnChosenListener _onChosenListener;
+    
+    public EventableListPreference(Context context) {
+        super(context);
+    }
 
-    vh.seekBar.setMax(_max);
-    vh.seekBar.setProgress(_currentValue);
+    public EventableListPreference(Context context, AttributeSet attrs) {
+        super(context, attrs);
+    }
 
-    if(_seekBar != null) _seekBar.clear();
-    _seekBar = new WeakReference<SeekBar>(vh.seekBar);
+    public EventableListPreference(Context context, AttributeSet attrs, int defStyle) {
+        super(context, attrs, defStyle);
+    }
+
+    @Override
+    protected void onPrepareDialogBuilder(AlertDialog.Builder builder) {
+
+        val entries = super.getEntries();
+        val entryValues = super.getEntryValues();
+
+        if (entries == null || entryValues == null) {
+            throw new IllegalStateException(
+                    "EventableListPreference requires an entries array and an entryValues array.");
+        }
+
+        builder.setSingleChoiceItems(entries, super.findIndexOfValue(super.getValue())
+            , new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    _selectedEntryIndex = which;
+                    if(_onChosenListener != null)
+                        _onChosenListener.onChosen(which, super.getEntries()[which], super.getEntryValues()[which]);
+                }
+        });
+
+        builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                EventableListPreference.this.onClick(dialog, DialogInterface.BUTTON_POSITIVE);
+                dialog.dismiss();
+            }
+        });
+    }
+
+    @Override
+    protected void onDialogClosed(boolean positiveResult) {
+        _onChosenListener = null;
+        val entryValues = super.getEntryValues();
+
+        if (positiveResult && _selectedEntryIndex >= 0 && entryValues != null) {
+            val value = entryValues[_selectedEntryIndex].toString();
+            if (callChangeListener(value)) {
+                super.setValue(value);
+            }
+        }
+    }
 }
-
-public void setMax(int max) {
-    _max = max;
-    changeTextView();
-
-    if(_seekBar == null) return;
-
-    val seekBar = _seekBar.get();
-    if(seekBar != null) seekBar.setMax(max);
-}
-
-public void setCurrentValue(int currentValue) {
-    _currentValue = currentValue;
-    changeTextView();
-
-    if(seekBar == null) return;
-
-    val seekBar = _seekBar.get();
-    if(seekBar != null) seekBar.setProgress(currentValue);
-}
-
-private void changeTextView() {
-    if(txtView == null) return;
-
-    val txtView = _txvValue.get();
-    if(txtView != null) txtView.setText(String.format("%d/%d", _currentValue, _max));
-}
-
 </pre>
 
+<p>onPrepareDialogBuilder‚àonDialogClosed‚àsuper‚ğŒÄ‚Ño‚·•K—v‚Í‚ ‚è‚Ü‚¹‚ñBListPreference‚Ì•û‚Í‚»‚à‚»‚àŒÄ‚Ño‚µ‚½‚­‚È‚¢‚Å‚·‚µADialogPreference‚Ì•û‚Íƒ\[ƒX‚ğŒ©‚ê‚Î‚í‚©‚é’Ê‚è‚Ç‚¿‚ç‚à‹ó‚Á‚Û‚Å‚·B</p>
 
-<h3>Preferenceã«å€¤ã‚’ã‚»ãƒƒãƒˆã™ã‚‹</h3>
+<h3>‚Ü‚Æ‚ß</h3>
 
-<p>å½“ç„¶ã‚·ãƒ¼ã‚¯ãƒãƒ¼ã‚’å‹•ã‹ã—ãŸã ã‘ã§å‹æ‰‹ã«ä¿å­˜ã—ã¦ãã‚Œã‚‹ã‚ã‘ã§ã¯ãªã„ã®ã§ã€è‡ªåˆ†ã§ä¿å­˜ã™ã‚‹å‹•ãã‚’å®Ÿè£…ã™ã‚‹å¿…è¦ãŒã‚ã‚Šã¾ã™ã€‚</p>
-<p>ã¨è¨€ã£ã¦ã‚‚ãã‚“ãªã«é›£ã—ããªã„ã§ã™ã€‚<a href="http://developer.android.com/reference/android/preference/Preference.html#getEditor()">getEditorãƒ¡ã‚½ãƒƒãƒ‰</a>ã‚’å‘¼ã³å‡ºã›ã°<a href="http://developer.android.com/reference/android/content/SharedPreferences.Editor.html">SharedPreferences.Editor</a>ãŒæ‰‹ã«å…¥ã‚Šã¾ã™ã—ã€è‡ªåˆ†è‡ªèº«ã®Keyã¯<a href="http://developer.android.com/reference/android/preference/Preference.html#getKey()">getKey</a>ã‚’å‘¼ã¶ã ã‘ã§ã™ã€‚ä»Šå›ã¯èª¬æ˜ã—ã¾ã›ã‚“ã§ã—ãŸãŒã€é€†ã«è‡ªåˆ†è‡ªèº«ã®è¨­å®šå€¤ã‚’å–å¾—ã™ã‚‹å ´åˆã¯getPersistedã§å§‹ã¾ã‚‹ãƒ¡ã‚½ãƒƒãƒ‰ã‚’ä½¿ã†ã¨æ¥½ã§ã™ã€‚ï¼ˆinitãƒ¡ã‚½ãƒƒãƒ‰ã§ã•ã‚Šã’ãªãä½¿ã£ã¦ã„ã‚‹ã€‚ï¼‰</p>
-<p>ã¤ã„ã§ã«ã€å€¤ã‚’å¤‰æ›´ã—çµ‚ãˆãŸã‚‰<a href="http://developer.android.com/reference/android/preference/Preference.html#getOnPreferenceChangeListener()">getOnPreferenceChangeListener</a>ã‚’å‘¼ã³å‡ºã—ã¦ã‚ã’ã‚‹ã¨ç´³å£«çš„ã§ã™ã€‚</p>
-
-<pre class="brush:java">
-@Override
-public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-    _currentValue = progress
-    changeTextView();
-}
-
-@Override
-public void onStartTrackingTouch(SeekBar seekBar) {}
-
-@Override
-public void onStopTrackingTouch(SeekBar seekBar) {
-    _currentValue = seekBar.getProgress();
-
-    // save value
-    super.getEditor().putInt(super.getKey(), _currentValue).commit();
-
-    val changedListener = super.getOnPreferenceChangeListener();
-    if(changedListener != null)
-        changedListener.onPreferenceChange(this, _currentValue);
-}
-
+<p>Œã‚ÍÀ—ác‚Æv‚Á‚½‚ñ‚Å‚·‚ªAPreferenceActivity‚©‚çfindPreference‚ÅEventableListPreference‚ğæ“¾‚µAsetOnChosenListener‚ğŒÄ‚Ño‚·‚¾‚¯‚Å‚·B‚»‚Ì’†‚ÅentryValue‚ğlong‚Ì”z—ñ‚É•ÏŠ·‚µA<a href="http://developer.android.com/reference/android/os/Vibrator.html">Vibrator</a>‚ğƒSƒjƒ‡ƒSƒjƒ‡‚·‚ê‚Î‚¢‚¯‚Ü‚·B</p>
+<p>arrays.xml‚É‹Lq‚·‚éƒoƒCƒu‚Ìƒpƒ^[ƒ“‚Í‚±‚ñ‚È•—‚É‚Å‚à‚µ‚Ä‚¨‚¯‚Î‚¢‚¢‚Å‚µ‚å‚¤B</p>
+<pre class="brush:xml">
+<resources>
+    <string-array name="VibePatternList">
+        <item>‚P</item>
+        <item>‚Q</item>
+    </string-array>
+    <string-array name="VibePatternValues">
+        <item>0,1000,500,1000</item>
+        <item>500,1500,1000,1500</item>
+    </string-array>
+</resources>
 </pre>
 
-<h3>ã¾ã¨ã‚</h3>
-
-<p>ã¾ãå¤§ä½“ã“ã‚“ãªã¨ã“ã‚ã§ã—ã‚‡ã†ã‹ã€‚ä»–ã®ã¨ã“ã‚ã¯è¦ªã‚¯ãƒ©ã‚¹ã¨ã—ã¦ã®PreferenceãŒã‚ˆãã«ã¯ã‹ã‚‰ã£ã¦ãã‚Œã¾ã™ã€‚</p>
-<p>æœ€å¾Œã«å…¨ä½“ã®ã‚³ãƒ¼ãƒ‰ã‚’ç´¹ä»‹ã—ã¦çµ‚ã‚ã‚Šã«ã—ã‚ˆã†ã‹ã¨æ€ã„ã¾ã—ãŸãŒã€ã‚ˆãã‚ˆãè€ƒãˆã¦ã¿ã‚Œã°<a href="https://github.com/tumbling-dice/Hatate">å…¨ã‚½ãƒ¼ã‚¹ã‚³ãƒ¼ãƒ‰ã‚’GitHubã«ã‚ã’ã¦ã„ã‚‹</a>ã®ã§ãã£ã¡ã‚’è¦‹ã¦ã‚‚ã‚‰ã†ã“ã¨ã«ã—ã¾ã—ã‚‡ã†ã€‚æ–‡å­—æ•°ã‚‚è¶³ã‚Šãªã„ã—ã€‚</p>
-
+<h3>Ql</h3>
 <ul>
-<li><a href="">SeekBarPreference.java</a></li>
-<li><a href="">layout/seekbar_preference.xml</a></li>
-<li><a href="">values/attr_seekbar_preference.xml</a></li>
-</ul>
-
-<h3>å‚è€ƒ</h3>
-<ul>
-<li><a href="http://yuki312.blogspot.jp/2012/03/androidpreference.html">Yukiã®ææŠ˜: Android:Preferenceé …ç›®ã®ãƒ¬ã‚¤ã‚¢ã‚¦ãƒˆãƒ•ã‚¡ã‚¤ãƒ«</a></li>
-<li><a href="http://ksoichiro.blogspot.jp/2011/05/android-preference.html">Android Preferenceã®å†…å®¹ãŒä»–ã®é …ç›®ã«å¤‰ã‚ã‚‹ | memorandum</a></li>
-<li><a href="http://inon29.hateblo.jp/entry/2014/01/12/202213">ã€Androidã€‘ç‹¬è‡ªViewã‚’ä½œæˆã™ã‚‹ - Itâ€™s now or never</a></li>
-<li><a href="http://qiita.com/glayash/items/87ee9774f52abc7c37fc">Androidã®Styleã¨ã‹Themeã¨ã‹Attrã¨ã‹Stylableã¨ã‹ã€‚ - Qiita</a></li>
-<li><a href="http://wada811.blogspot.com/2013/10/custom-view-circle-image-view-in-android.html">[Android]Custom View ã®ä½œæˆã¨ AttributeSet ã¨ declare-styleable | DevAchieve</a></li>
-<li><a href="http://himtodo.fc2web.com/java/joinArray.html">è¤‡æ•°é…åˆ—ã®çµåˆ</a></li>
+<li><a href="http://www.ne.jp/asahi/hishidama/home/tech/java/array.html#h2_covariant">Java”z—ñƒƒ‚(Hishidama's Java Array Memo)</a></li>
 </ul>
