@@ -12,7 +12,7 @@ import lombok.Data;
 @SqliteTable("Series")
 public class Series implements Serializable, ISqlite {
 	
-	@SqliteField(name="Id", type=FIELD_INTEGER, primary=true, autoincrement=true)
+	@SqliteField(name="Id", type=FIELD_INTEGER, primary=true)
 	private long id;
 	
 	@SqliteField(name="Name", type=FIELD_TEXT, notNull=true, unique=true)
