@@ -1,5 +1,7 @@
 public class AccountListActivity extends ListActivity implements OnItemLongClickListener {
 	
+	private static final int REQ_ADD = 0;
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -59,8 +61,8 @@ public class AccountListActivity extends ListActivity implements OnItemLongClick
 		case R.id.menu_item_add:
 			val intent = new Intent(getApplicationContext(), OauthActivity.class);
 			intent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
-			intent.putExtra(OauthActivity.KEY_TYPE, OauthActivity.TYPE_ADD);
-			startActivityForResult(intent, OauthActivity.TYPE_ADD);
+			intent.putExtra(OauthActivity.KEY_NEED_CALLBACK, true);
+			startActivityForResult(intent, REQ_ADD);
 			return true;
 		default:
 			return false;
@@ -71,7 +73,7 @@ public class AccountListActivity extends ListActivity implements OnItemLongClick
 	protected void onActivityResult (int requestCode, int resultCode, Intent data) {
 		if(resultCode != RESULT_OK) return;
 		
-		if(requestCode == OauthActivity.TYPE_ADD) {
+		if(requestCode == REQ_ADD) {
 			val newAccount = (TwitterAccount) data.getSerializableExtra(OauthActivity.KEY_ACCOUNT);
 			((AccountAdapter) getListView().getAdapter()).add(newAccount);
 		}
