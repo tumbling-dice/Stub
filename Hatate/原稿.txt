@@ -1,0 +1,343 @@
+[Android][Twitter4J]Oauth認証をServiceで行う（あるいは、Serviceの結果をBroadcastReceiverで受け取る）
+
+<h3>前書き</h3>
+
+<p>AndroidでTwitter4Jを使ってOauth認証を行う方法は以前<a href="http://outofmem.tumblr.com/post/76102596543/android-twitter4j-android-twitter4j">[Android][Twitter4J]AndroidでTwitter4Jを使うときのノウハウまとめ（前半）</a>と言う記事で紹介したんですが、何と言うか、単刀直入に言うとバグっています。</p>
+<p>具体的にどのような事象が発生するかと言うと、色々あるんですが、一番困ったのは<a href="http://developer.android.com/reference/android/app/Activity.html#startActivityForResult(android.content.Intent, int)">startActivityForResult</a>を使ってOauth認証後のアクセストークンを手に入れることが出来ないと言うところです。そんなわけで今回は「Oauth認証後にちゃんとActivityにコールバックが送られる処理」を作ることを目標にします。</p>
+
+<h3>そもそもの話</h3>
+
+<p>そもそも、以下の理由から考えてもOauth認証のために1つActivityを作ること自体が間違っている気がします。</p>
+<ul>
+<li>アプリ内の画面を遷移させる必要が全くない</li>
+<li>HTTP通信が発生するので絶対に非同期処理にする必要がある</li>
+</ul>
+<p>こう言ったものを処理するには<a href="http://developer.android.com/reference/android/app/Activity.html#startActivityForResult(android.content.Intent, int)">Service</a>、しかも確実に非同期で処理する必要があるならば、<a href="http://developer.android.com/reference/android/app/IntentService.html">IntentService</a>で実装するのが筋ってもんじゃないでしょうか。</p>
+
+<h3>ServiceからActivityへコールバックを送るための仕組み</h3>
+
+<p>これまた以前に<a href="http://outofmem.tumblr.com/post/87130827504/android-service">[Android]Serviceとのプロセス間通信でデータを送受信する</a>と言う記事でちょっとだけ書きました。</p>
+<p>左記の記事では<a href="http://developer.android.com/reference/android/content/Context.html#bindService(android.content.Intent,%20android.content.ServiceConnection,%20int)">Context#bindService</a>を使う方式をメインに紹介しましたが、今回は別にバインドしなくていいので<a href="http://developer.android.com/intl/ja/reference/android/content/Context.html#startService(android.content.Intent)">Context#startService</a>を使います。そしてServiceから1回だけコールバックしてもらいたい場合は<a href="http://developer.android.com/reference/android/content/BroadcastReceiver.html">BroadcastReceiver</a>を使うのが普通です。</p>
+<p>方式としてはこんなイメージです。</p>
+
+<pre class="brush:text">
+Activityを起動
+↓
+ActivityのどこかでActivityとBroadcastReceiverを紐付ける
+↓
+ActivityのどこかでServiceを起動する
+↓
+Service内でOauth認証を行う
+↓
+Oauth認証後、ServiceからBroadcastReceiverを起動する
+↓
+Activityに紐付いたBroadcastReceiverが起動する
+↓
+成し遂げたぜ。
+</pre>
+
+<h3>BroadcastReceiverの継承と登録</h3>
+
+<p>先に<a href="http://developer.android.com/reference/android/content/BroadcastReceiver.html">BroadcastReceiver</a>を作ってしまいましょう。基本的には<a href="http://developer.android.com/reference/android/content/BroadcastReceiver.html#onReceive(android.content.Context, android.content.Intent)">onReceive</a>だけ実装すればOKです。</p>
+
+<pre class="brush:java">
+public abstract class CallbackBroadcastReceiver extends BroadcastReceiver {
+
+    public static final String ACTION_CALLBACK = "twitter4j.auth.action.callback";
+    public static final String KEY_DATA = "data";
+
+    static class Data implements Serializable {
+        AccessToken token;
+        Exception exception;
+        boolean isSuccess;
+
+        static Data create(AccessToken token) {
+            Data data = new Data();
+            data.token = token;
+            data.isSuccess = true;
+            return data;
+        }
+
+        static Data create(Exception exception) {
+            Data data = new Data();
+            data.exception = exception;
+            data.isSuccess = false;
+            return data;
+        }
+    }
+
+    public static Intent createIntent(Data data) {
+        Intent i = new Intent();
+        i.setAction(ACTION_CALLBACK);
+        i.putExtra(KEY_DATA, data);
+        return i;
+    }
+
+    public static IntentFilter createIntentFilter() {
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(ACTION_CALLBACK);
+        return filter;
+    }
+
+    @Override
+    public void onReceive(Context context, Intent intent) {
+        Data data = (Data) intent.getSerializableExtra(KEY_DATA);
+
+        try {
+            if(data.isSuccess) {
+                onSuccess(data.token);
+            } else {
+                onError(data.exception);
+            }
+        } finally {
+            getApplicationContext().unregisterReceiver(this);
+        }
+    }
+
+    public abstract void onSuccess(AccessToken token);
+    public abstract void onError(Exception exception);
+}
+</pre>
+
+<p>ServiceからはCallbackBroadcastReceiver#DataをIntent経由で送ってもらうことを想定しています。Oauth認証に成功していたらonSuccessへ、失敗していたらonErrorへ委譲します。</p>
+<p>Activityとの紐付けは<a href="http://developer.android.com/reference/android/content/Context.html#registerReceiver(android.content.BroadcastReceiver, android.content.IntentFilter)">Context#registerReceiver</a>を使います。</p>
+
+<pre class="brush:java">
+// 適当なところからのonClick想定
+public void test(View v) {
+    registerReceiver(new CallbackBroadcastReceiver() {
+        @Override
+        public void onSuccess(AccessToken token) {
+            // TODO:成功時処理
+        }
+
+        @Override
+        public void onError(Exception exception) {
+            // TODO:失敗時処理
+        }
+    }, CallbackBroadcastReceiver.createIntentFilter());
+
+    // TODO: startService
+}
+</pre>
+
+<p>このように、BroadcastReceiverはAndroidManifestに記述しなくても使用することが出来ます。ただしその場合は必ず<a href="http://developer.android.com/reference/android/content/IntentFilter.html">IntentFilter</a>を作成する必要があるので、適当に独自のActionを定義しておきましょう。</p>
+<p>Activity側とService側でActionが一致していないと当然コールバックとして機能しないので、BroadcastReceiver内に適当なstaticメソッドを作っておくと捗ります。</p>
+
+<pre class="brush:java">
+// Serviceでつかう
+public static Intent createIntent(Data data) {
+    Intent i = new Intent();
+    i.setAction(ACTION_CALLBACK);
+    i.putExtra(KEY_DATA, data);
+    return i;
+}
+
+// Activityでつかう
+public static IntentFilter createIntentFilter() {
+    IntentFilter filter = new IntentFilter();
+    filter.addAction(ACTION_CALLBACK);
+    return filter;
+}
+
+</pre>
+
+<h3>IntentServiceの継承</h3>
+
+<p><a href="http://developer.android.com/reference/android/app/IntentService.html">IntentService</a>の実装にあたって、とりあえず必要なものは以下の通りです。</p>
+
+<ul>
+<li>引数無しのコンストラクタ</li>
+<li><a href="http://developer.android.com/reference/android/app/IntentService.html#onHandleIntent(android.content.Intent)">onHandleIntent</a></li>
+</ul>
+
+<p>後者はabstractメソッドなので当然必須なんですが、前者はなんで必要かと言うと、ないと起動しないからです。と言うのも、<a href="http://developer.android.com/reference/android/app/Service.html#Service()">Serviceのコンストラクタは引数なしのものしかない</a>のに対し、<a href="http://developer.android.com/reference/android/app/IntentService.html#IntentService(java.lang.String)">IntentServiceはStringを一つ受け取るコンストラクタ</a><strong>しかない</strong>からです。</p>
+<p>当然Serviceを立ち上げる側はそのServiceを引数なしのコンストラクタで作ろうとするんですが、IntentServiceとしては引数なしのコンストラクタが定義されてないので作れないってわけですね。設計的にどうなのって気持ちはありますが我慢しましょう。</p>
+
+<pre class="brush:java">
+public class OauthService extends IntentService {
+
+    public OauthService() {
+        super("OauthService");
+    }
+
+    public OauthService(String name) {
+        super(name);
+    }
+
+    @Override
+    protected void onHandleIntent(Intent intent) {
+        // FIXME: implement
+    }
+}
+</pre>
+
+<h3>Oauth処理を組み込む</h3>
+
+<p>それじゃあonHandleIntent内にOauth認証に関する処理を記述していきましょう。consumer_keyとconsumer_secretはIntentで渡すようにします。</p>
+
+<pre class="brush:java">
+public class OauthService extends IntentService {
+
+    public static final String KEY_CONSUMER_KEY = "consumerKey";
+    public static final String KEY_CONSUMER_SECRET = "consumerSecret";
+
+    public OauthService() {
+        super("OauthService");
+    }
+
+    public OauthService(String name) {
+        super(name);
+    }
+    
+    public static Intent createIntent(String consumerKey, String consumerSecret, Context context) {
+        Intent intent = new Intent(context, OauthService.class);
+        intent.putExtra(KEY_CONSUMER_KEY, consumerKey);
+        intent.putExtra(KEY_CONSUMER_SECRET, consumerSecret);
+
+        return intent;
+    }
+    
+    @Override
+    protected void onHandleIntent(Intent intent) {
+        if(intent.hasExtra(KEY_CONSUMER_KEY)){
+            startOauth(intent);
+        } else {
+            if(intent.getData == null) {
+                throw new IllegalStateException();
+            }
+            getAccessToken(intent);
+        }
+    }
+
+    /**
+     * Oauth認証開始
+     * @param intent
+     */
+    private void startOauth(Intent intent) {
+        String consumerKey = intent.getStringExtra(KEY_CONSUMER_KEY);
+        String consumerSecret = intent.getStringExtra(KEY_CONSUMER_SECRET);
+        String callbackUri = "oauth://callback";
+
+        Configuration conf = new ConfigurationBuilder()
+                                    .setOAuthConsumerKey(consumerKey)
+                                    .setOAuthConsumerSecret(consumerSecret)
+                                    .build();
+
+        OAuthAuthorization oauth = new OAuthAuthorization(conf);
+        oauth.setOAuthAccessToken(null);
+
+        String uri;
+        try {
+            uri = oauth.getOAuthRequestToken(callbackUri).getAuthorizationURL();
+        } catch (TwitterException e) {
+            e.printStackTrace();
+            // error callback
+            CallbackBroadcastReceiver.Data data = CallbackBroadcastReceiver.Data.create(e);
+            sendBroadcast(CallbackBroadcastReceiver.createIntent(data));
+            return;
+        }
+
+        try {
+            serialize(oauth, "oauth.dat");
+        } catch (IOException e) {
+            e.printStackTrace();
+            // error callback
+            CallbackBroadcastReceiver.Data data = CallbackBroadcastReceiver.Data.create(e);
+            sendBroadcast(CallbackBroadcastReceiver.createIntent(data));
+            return;
+        }
+
+        startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(uri)));
+    }
+
+    /**
+     * AccessToken取得
+     * @param intent
+     */
+    private void getAccessToken(Intent intent) {
+        OAuthAuthorization oauth = null;
+
+        try {
+            oauth = deserialize("oauth.dat");
+        } catch(Exception e) {
+            e.printStackTrace();
+            // error callback
+            CallbackBroadcastReceiver.Data data = CallbackBroadcastReceiver.Data.create(e);
+            sendBroadcast(CallbackBroadcastReceiver.createIntent(data));
+            return;
+        }
+        
+        String verifier = intent.getData().getQueryParameter("oauth_verifier");
+        AccessToken accessToken;
+        try {
+            accessToken = oauth.getOAuthAccessToken(verifier);
+        } catch (TwitterException e) {
+            e.printStackTrace();
+            // error callback
+            CallbackBroadcastReceiver.Data data = CallbackBroadcastReceiver.Data.create(e);
+            sendBroadcast(CallbackBroadcastReceiver.createIntent(data));
+            return;
+        }
+
+        // success callback
+        CallbackBroadcastReceiver.Data data = CallbackBroadcastReceiver.Data.create(accessToken);
+        sendBroadcast(CallbackBroadcastReceiver.createIntent(data));
+    }
+
+    private void serialize(OAuthAuthorization obj, String fileName) throws IOException {
+        try {
+            FileOutputStream fos = openFileOutput(fileName, MODE_PRIVATE);
+            ObjectOutputStream oos = new ObjectOutputStream(fos);
+            oos.writeObject(statuses)
+        } finally {
+            if(fos != null) {
+                if(oos != null) oos.close();
+                fos.close();
+            }
+        }
+    }
+
+    private OAuthAuthorization deserialize(String fileName) throws Exception {
+        try {
+            FileInputStream fis = openFileInput(path);
+            ObjectInputStream ois = new ObjectInputStream(fis);
+            return (OAuthAuthorization) ois.readObject();
+        } finally {
+            if(fis != null) {
+                if(ois != null) ois.close();
+                fis.close();
+            }
+
+            deleteFile(fileName);
+        }
+    }
+}
+</pre>
+
+<p>AndroidManifestはこんな感じになります。android:nameのパッケージ名は適当に書き換えてください。</p>
+<pre class="brush:xml">
+<service android:name="inujini_.hatate.service.OauthService" android:exported="false">
+    <intent-filter>
+        <action android:name="android.intent.action.View" />
+        <category android:name="android.intent.category.DEFAULT" />
+        <category android:name="android.intent.category.BROWSABLE" />
+        <data android:scheme="oauth" android:host="callback"/>
+    </intent-filter>
+</service>
+</pre>
+
+<p>ちょっとトリッキーなところとして、<a href="http://twitter4j.org/javadoc/twitter4j/auth/OAuthAuthorization.html">OAuthAuthorization</a>のシリアライズ / デシリアライズがあります。</p>
+<p>TwitterのOauth認証画面へ遷移するときと、Oauth認証が終わってOauthServiceへリダイレクトされた後のOAuthAuthorizationは必ず同じものを使う必要があります。しかし、仕組み上どうしてもそれぞれ別のOauthServiceインスタンスを使わざるをえません。</p>
+<p>static変数で持っておくなどの対処も考えられますが、うっかりGCされた日には「Twitter側では認証できたのにアプリ側でエラーになったからクソ」と罵られても文句は言えませんし、再現性もない可能性があるので、いっそのこと一回ファイルに吐き出してしまったほうが安全かなと。</p>
+
+<h3>まとめ</h3>
+
+<p>後は実例…と思ったんですが、いつものクソアプリのソースでお茶を濁します。</p>
+
+<ul>
+<li><a href="">NotificationActivity.java</a></li>
+<li><a href="">AccountListActivity.java </a></li>
+</ul>
+
+<p>Oauth認証に限らず、何らかのIntentを交互に飛ばしあうような処理ならこの手段が使えるはずです。ちょっと具体的な例は思いつきませんが。</p>
