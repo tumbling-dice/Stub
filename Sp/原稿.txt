@@ -1,0 +1,163 @@
+<h3>前書き</h3>
+<p>TextViewには<a href="http://developer.android.com/reference/android/widget/TextView.html#attr_android:autoLink">autoLink</a>と言うAttributeがあって、これをつけておけばURLを自動でリンクしてくれるんですが、内部で使っている正規表現がお粗末なのか、単純にテストパターンに含まれてないのか、日本語URLも受け付けるつもりなのか、ともかく2バイト文字も平気で含めてしまう使いにくいやつです。</p>
+<p>使いにくいので仕方ありません。作りましょう。</p>
+<h3>CharacterStyleとSpannableString</h3>
+<p>TextViewの文字列内に何らかの情報（文字色とか）を付与したい場合は<a href="http://developer.android.com/reference/android/text/style/CharacterStyle.html">CharacterStyle</a>を使用します。こいつを継承しているサブクラスの名前をつらつらと眺めるだけでもどんなことが出来るのかなんとなくわかると思います。</p>
+<p>オレオレCharacterStyleを作る場合は<a href="http://developer.android.com/reference/android/text/style/MetricAffectingSpan.html">MetricAffectingSpan</a>を継承してね、と書かれていますが、onClickを設定できる<a href="http://developer.android.com/reference/android/text/style/ClickableSpan.html">ClickableSpan</a>と言う抽象クラスがありますし、そいつを継承した<a href="http://developer.android.com/reference/android/text/style/URLSpan.html">URLSpan</a>と言う今回にぴったりの具象クラスもあります。と言うわけで、これを使いましょう。</p>
+<p>接尾語としてSpanがついているものを文字列に設定するには、<a href="http://developer.android.com/reference/android/text/Spannable.html">Spannable</a>インターフェースを使います。<a href="http://developer.android.com/reference/android/text/Spannable.html#setSpan(java.lang.Object,%20int,%20int,%20int)">setSpan</a>メソッドのwhatに当たる部分が○○Spanです。startとendで範囲を指定します。</p>
+<p>じゃあこのSpannableをどうやってTextViewに設定するのかって話ですが、結論から言うと、<a href="http://developer.android.com/reference/android/text/SpannableString.html">SpannableString</a>なるものを使用します。</p>
+<p><a href="http://developer.android.com/reference/android/text/SpannableString.html">SpannableString</a>はSpannableと<a href="http://developer.android.com/reference/java/lang/CharSequence.html">CharSequence</a>を実装しており、<a href="http://developer.android.com/reference/android/widget/TextView.html#setText(java.lang.CharSequence)">TextView#setText(CharSequence text)</a>を適用できます。</p>
+<p>ちなみに<a href="http://developer.android.com/reference/android/text/SpannableStringBuilder.html">SpannableStringBuilder</a>なるものもあるらしいので、適宜使い分けましょう。使い方はまんまStringBuilderです。</p>
+<p>他のSpanに関する説明や細かい設定方法などは<a href="http://d.hatena.ne.jp/androidprogram/20100529/1275086958">ここ</a>がとても詳しいので参考にしてみてください。</p>
+<h3>Spannable#setSpanで使用するフラグ</h3>
+<p>setSpanのシグネチャにはflagsと言う引数が設定されています。これはどうもSpanの影響範囲に関係するみたいです。ここに指定するフラグは<a href="http://developer.android.com/reference/android/text/Spanned.html">Spanned</a>インターフェースが定数として保持しています。</p>
+<p>なんかやたらといっぱいフラグがあるんですが、<a href="http://developer.android.com/reference/android/text/Spanned.html#SPAN_EXCLUSIVE_EXCLUSIVE">SPAN_EXCLUSIVE_EXCLUSIVE</a>を指定しておけば大丈夫です。</p>
+<h3>MovementMethod</h3>
+<p>TextView#setTextでSpanをセットしただけではまだ動きません。<a href="http://developer.android.com/reference/android/widget/TextView.html#setMovementMethod(android.text.method.MovementMethod)">TextView#setMovementMethod</a>で<a href="http://developer.android.com/reference/android/text/method/MovementMethod.html">MovementMethodインターフェース</a>を指定する必要があります。</p>
+<p>とは言え、この辺はもう細かいことを考えないで<a href="http://developer.android.com/reference/android/text/method/LinkMovementMethod.html">LinkMovementMethod</a>と言う具象クラスを指定しましょう。getInstanceメソッドでインスタンスを取得できます。</p>
+<h3>コード</h3>
+<p>いい加減ドキュメントを読むのにも飽きたので実際にやってみましょう。正規表現を考えるのが面倒なので<a href="http://www.nilab.info/z3/20100113_zlashdot_001094.html">ここ</a>のをお借りします。</p>
+<pre class="brush:java">String url = "http://outofmem.tumblr.com/";
+SpannableString ss = new SpannableString(url);
+
+final Pattern STANDARD_URL_MATCH_PATTERN = Pattern.compile("(http://|https://){1}[\\w\\.\\-/:\\#\\?\\=\\&amp;\\;\\%\\~\\+]+", Pattern.CASE_INSENSITIVE);
+
+Matcher m = STANDARD_URL_MATCH_PATTERN.matcher(url);
+
+while(m.find()) {
+    ss.setSpan(new URLSpan(m.group()), m.start(), m.end(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+}
+
+txvUrl.setText(ss);
+txvUrl.setMovementMethod(LinkMovementMethod.getInstance());
+
+</pre>
+
+<h3>応用1:クリック時の動作を設定する</h3>
+<p>URLSpanのonClickの挙動は「受け取ったURLをインテントでブラウザに投げる」と言うものですが、当然オーバーライドしてやれば変えることが出来ます。</p>
+<p>例えばTwitterクライアントを作っていて、「@付きだったら自前のプロフィール用アクティビティに飛ばし、URLだったらブラウザに投げる」なんてことも可能です。例えばって言うか、それがやりたかったんだけども。</p>
+<pre class="brush:java">String text = "@null <a href="http://outofmem.tumblr.com/">http://outofmem.tumblr.com/</a>";
+SpannableString ss = new SpannableString(text);
+
+final Pattern TWITTER_PATTERN = Pattern.compile("@[0-9a-zA-Z_]+|(http://|https://){1}[\\w\\.\\-/:\\#\\?\\=\\&amp;\\;\\%\\~\\+]+", Pattern.CASE_INSENSITIVE);
+
+Matcher m = TWITTER_PATTERN.matcher(text);
+
+while(m.find()) {
+    String t = m.group();
+    
+    if(t.startsWith("@")) {
+        ss.setSpan(new URLSpan(t) {
+            @Override
+            public void onClick(View widget) {
+                Context cont = widget.getContext();
+                Intent intent = new Intent(cont, ProfileActivity.class);
+                intent.putExtra("screenName", this.getURL().replace("@", ""));
+                cont.startActivity(intent);
+            }
+        }, m.start(), m.end(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+    } else {
+        ss.setSpan(new URLSpan(t), m.start(), m.end(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+    }
+}
+
+txvUrl.setText(ss);
+txvUrl.setMovementMethod(LinkMovementMethod.getInstance());
+</pre>
+<p>実際には匿名クラスより専用のClickableSpanを実装したクラスを作ったほうがいいのかもしれませんが。</p>
+
+<p>[2014/10/24追記]</p>
+<h3>応用2:親Viewのタッチイベントを阻害しないようにする</h3>
+<p>ClickableSpanを設定すると<strong>そのTextView及び親Viewの（onClickなども含む）タッチイベントはすべて無視されます。</strong>ListViewの中のTextViewにClickableSpanを設定したりなんかすると、この問題にぶつかるでしょう。</p>
+<p>これはClickableSpanではなく<a href="http://developer.android.com/reference/android/text/method/LinkMovementMethod.html">LinkMovementMethod</a>の動作が原因です。</p>
+<p>タッチイベントは<a href="http://blog.lciel.jp/blog/2013/12/03/android-touch-event/">一番最後の子ビューから親ビューへと伝播していきます。</a><a href="http://developer.android.com/reference/android/view/View.html#onTouchEvent(android.view.MotionEvent)">View#onTouchEvent</a>が伝播していく中で誰かがtrueを返すと「正しくタッチイベントが処理された」と認識し、それ以上伝播させません。</a></p>
+
+<p><a href="http://grepcode.com/file/repository.grepcode.com/java/ext/com.google.android/android/2.3.2_r1/android/widget/TextView.java">TextViewのソース</a>からonTouchEventを探していくと、<a href="http://developer.android.com/reference/android/text/method/MovementMethod.html">MovementMethod</a>が設定されているか否かで処理が分岐していることに気づきます。</p>
+
+<pre class="brush:java">
+@Override
+public boolean onTouchEvent(MotionEvent event) {
+    // 省略
+    final boolean superResult = super.onTouchEvent(event);
+
+    if ((mMovement != null || onCheckIsTextEditor()) && mText instanceof Spannable && mLayout != null) {
+        // 省略
+        boolean handled = false;
+
+        if (mMovement != null) {
+            handled |= mMovement.onTouchEvent(this, (Spannable) mText, event);
+        }
+
+        // 省略
+
+        if (handled) {
+            return true;
+        }
+    }
+
+    return superResult;
+}
+
+</pre>
+
+<p>どうやらMovementMethod#onTouchEventでtrueが返されているようです。と言うわけで次は<a href="http://grepcode.com/file/repository.grepcode.com/java/ext/com.google.android/android/4.3_r2.1/android/text/method/LinkMovementMethod.java">LinkMovementMethodのソース</a>を見ていきます。</p>
+
+<pre class="brush:java;highlight:[21,22,23,24,25,26,27,28,29,30,31,32,33,34,35]">
+@Override
+public boolean onTouchEvent(TextView widget, Spannable buffer,
+                            MotionEvent event) {
+    int action = event.getAction();
+
+    if (action == MotionEvent.ACTION_UP ||
+        action == MotionEvent.ACTION_DOWN) {
+        int x = (int) event.getX();
+        int y = (int) event.getY();
+
+        x -= widget.getTotalPaddingLeft();
+        y -= widget.getTotalPaddingTop();
+
+        x += widget.getScrollX();
+        y += widget.getScrollY();
+
+        Layout layout = widget.getLayout();
+        int line = layout.getLineForVertical(y);
+        int off = layout.getOffsetForHorizontal(line, x);
+
+        ClickableSpan[] link = buffer.getSpans(off, off, ClickableSpan.class);
+
+        if (link.length != 0) {
+            if (action == MotionEvent.ACTION_UP) {
+                link[0].onClick(widget);
+            } else if (action == MotionEvent.ACTION_DOWN) {
+                Selection.setSelection(buffer,
+                                       buffer.getSpanStart(link[0]),
+                                       buffer.getSpanEnd(link[0]));
+            }
+
+            return true;
+        } else {
+            Selection.removeSelection(buffer);
+        }
+    }
+
+    return super.onTouchEvent(widget, buffer, event);
+}
+</pre>
+
+<p>とまぁ、見ての通りClickableSpanが引っかかると有無を言わさずtrueを返していることがわかります。</p>
+
+<p>実は色々調べているうちに気づいたんですが、<a href="http://stackoverflow.com/questions/16792963/android-clickablespan-intercepts-the-click-event">このStack Overflowの記事</a>がほとんど全く同じことを言っていたと言うオチ…。ま、まぁ翻訳と解説だと思ってもらえれば。</p>
+
+<h3>まとめ</h3>
+<p>CharacterStyleを使用することでTextViewだけでも結構なんとかなります。まぁ、コードはだらだらと長くなってしまうんですが…。</p>
+<h3>参考</h3>
+
+<ul><li>：Tips 　TextView を使いこなそう　～ 表示編 ～ - Google Android - 　雑記帳　<a href="http://d.hatena.ne.jp/androidprogram/20100518/1274184600">その3</a>　<a href="http://d.hatena.ne.jp/androidprogram/20100529/1275086958">その4</a>　<a href="http://d.hatena.ne.jp/androidprogram/20100530/1275168217">その5</a></li>
+<li><a href="http://d.hatena.ne.jp/tak87/20100413/1271143983">TextView中の文字列をクリッカブルに - TAKのAndroid開発日記</a></li>
+<li><a href="http://d.hatena.ne.jp/chaoruko/20111007/1317997853">Androidでテキストの中の一部をクリックできるようにする - 猫も茶を飲む</a></li>
+<li><a href="http://blog.zaq.ne.jp/oboe2uran/article/599/">Android TextView で一部をリンク-Oboe吹きプログラマの黙示録</a></li>
+<li><a href="http://www.nilab.info/z3/20100113_zlashdot_001094.html">[ヅ] JavaでテキストからURLを抽出する正規表現 (2010-01-13)</a></li>
+<li><a href="http://blog.narazaki.info/2009/09/02/textviewautolink/">TextViewのAutoLinkのクリック時の挙動をカスタマイズするのがめんどい «&#160;oops</a></li>
+<li><a href="http://blog.lciel.jp/blog/2013/12/03/android-touch-event/">Android のタッチイベントを理解する(その1) - Unmotivated</a></li>
+<li><a href="http://stackoverflow.com/questions/16792963/android-clickablespan-intercepts-the-click-event">android ClickableSpan intercepts the click event - Stack Overflow</a></li>
+</ul>
